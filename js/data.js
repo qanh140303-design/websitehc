@@ -222,8 +222,8 @@ window.THEME = {
   },
   "chu": {
     "body": "Be Vietnam Pro",
-    "heading": "Quicksand",
-    "co": 15
+    "heading": "Baloo 2",
+    "co": 16
   },
   "bo": {
     "radius": 16,
@@ -237,8 +237,8 @@ window.THEME = {
     "hienTaiKhoan": true
   },
   "khoi": [
-    { "key": "hero", "ten": "Banner lớn đầu trang", "bat": true },
     { "key": "suc-khoe", "ten": "Theo dõi sức khỏe con", "bat": true },
+    { "key": "hero", "ten": "Banner lớn đầu trang", "bat": true },
     { "key": "flash", "ten": "Flash sale", "bat": true },
     { "key": "noi-bat", "ten": "Mẹ tin dùng nhất", "bat": true },
     { "key": "do-tuoi", "ten": "Bé nhà mình mấy tuổi", "bat": true },
