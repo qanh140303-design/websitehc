@@ -18,7 +18,7 @@
     { t: 'Xanh lá tự nhiên', m: { primary: '#2E9E5B', teal: '#0F9488', amber: '#E8A317', ink: '#1C2A22', 'bg-soft': '#F2FBF5' } },
     { t: 'Tím dịu', m: { primary: '#7C5CD6', teal: '#17A398', amber: '#F2A93B', ink: '#241F33', 'bg-soft': '#F8F5FF' } },
   ];
-  const FONT = ['Be Vietnam Pro', 'Quicksand', 'Nunito', 'Inter', 'Roboto', 'Montserrat', 'Lora'];
+  const FONT = ['Be Vietnam Pro', 'Baloo 2', 'Quicksand', 'Nunito', 'Inter', 'Roboto', 'Montserrat', 'Lora'];
 
   const T = () => (A.D.THEME = A.D.THEME || A.sao(window.THEME || {}));
   let mucMo = 'bo-cuc';

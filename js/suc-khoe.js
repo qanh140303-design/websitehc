@@ -165,6 +165,8 @@
       ],
     },
   };
+  /* Cho lớp hiển thị "Bạn có biết?" (js/rd-y-home.js) đọc nội dung dinh dưỡng theo giai đoạn – chỉ đọc */
+  if (window.HK_GROWTH) window.HK_GROWTH.GIAI_DOAN = GIAI_DOAN;
   /* ---------------- Chế độ ăn theo giai đoạn ----------------
      Tham khảo khuyến nghị nuôi dưỡng trẻ nhỏ của WHO/UNICEF và tháp dinh dưỡng của Viện Dinh dưỡng Quốc gia; lượng chỉ là mức trung bình. */
   const CHE_DO_AN = {
@@ -468,39 +470,138 @@
   let moRong = false, bieuDoDangXem = 'hfa', hienTai = null, rongBieuDo = 0;
   let tam = null; // kết quả tra cứu không lưu (mẹ bỏ tích "Lưu thông tin bé"): chỉ hiện, không ghi vào máy
 
+  /* ---------------- Hero "Lớn lên cùng bé" (spec design/lon-len-cung-be.md mục 8.1) ----------------
+     Chỉ là phần nhìn: nút vẫn là [data-hk-mo] / [data-hk-xem] / [data-hk-luu] / [data-hk-ve] như cũ. */
+  const ic = (slug, z = 28, cls = '') => MC.rdIcon(slug, z, '', cls);
+  const icE = (e, z = 28) => (window.RD && RD.icon ? RD.icon(e, { size: z }) : MC.rdEmoji(e, z));
+  const h1 = document.getElementById('hkH1');
+  /* H1 duy nhất của trang: đưa vào hero thành dòng chữ nhỏ (khối bị Quản trị tắt thì để nguyên sr-only) */
+  const ganH1 = () => {
+    const o = $('[data-hk-h1]', the);
+    if (!h1 || !o || root.classList.contains('khoi-tat')) return;
+    o.appendChild(h1); h1.className = 'hk-hero__h1';
+  };
+  /* Minh hoạ giữ nguyên giữa các lần vẽ lại (bấm Xem kết quả...) để bé không "lớn lại" từ đầu */
+  let artNode = null, artKey = '';
+  function datArt(key, html, say) {
+    const o = $('[data-hk-art]', the);
+    if (!o) return;
+    const moi = !artNode || artKey !== key;
+    if (moi) { const t = document.createElement('div'); t.innerHTML = html.trim(); artNode = t.firstElementChild; artKey = key; }
+    const b = $('.hk-hero__say', artNode);
+    if (b && b.innerHTML !== say) b.innerHTML = say; // nhãn WHO có thể đến sau (bảng chuẩn tải chậm)
+    o.replaceWith(artNode);
+    if (moi) xemArt(artNode);
+  }
+  /* Bé "lớn lên" khi sân khấu lộ đủ (máy tính ≥40%, điện thoại ≥90%; trên điện thoại minh hoạ nằm dưới nút chính, nên chờ mẹ cuộn tới mới diễn) */
+  function lonLen(art, lan = 0) {
+    if (!art.isConnected) return;
+    const st = $('.hk-hero__grow', art);
+    if (!st || !st.hasAttribute('data-hk-intro')) { art.classList.add('is-played'); return; }
+    if (!(window.RD && RD.grow)) { if (lan < 40) setTimeout(() => lonLen(art, lan + 1), 120); else art.classList.add('is-played'); return; }
+    art.classList.add('is-played');
+    RD.grow(st, 'tang-chieu-cao', { cm: Number(st.getAttribute('data-hk-intro')) || 92 });
+  }
+  const ioArt = 'IntersectionObserver' in window ? new IntersectionObserver((ds) => ds.forEach((en) => {
+    if (en.intersectionRatio < (matchMedia('(min-width: 900px)').matches ? 0.4 : 0.9)) return; // điện thoại: chờ thấy cả bé
+    ioArt.unobserve(en.target); lonLen(en.target.closest('.hk-hero__art'));
+  }), { threshold: [0, 0.4, 0.9], rootMargin: '0px 0px -72px 0px' }) : null; // -72px: thanh dưới cùng trên điện thoại
+  function xemArt(art) {
+    const st = $('.hk-hero__grow', art);
+    if (ioArt && st) ioArt.observe(st); else lonLen(art);
+  }
+  const THU = ['giraffe', 'elephant', 'bear', 'bunny', 'chick'];
+  /* Thước dán tường + các bạn thú xếp chồng + sân khấu bé lớn lên (rd-motion.js). Trang trí: aria-hidden */
+  function heroArt({ cm, intro, kid, trai, teen }) {
+    return `<div class="hk-hero__art${kid === 'boy' || trai ? ' hk-hero__art--boy' : ''}${teen ? ' hk-hero__art--teen' : ''}" aria-hidden="true">
+      <span class="rd-blob hk-hero__blob"></span>
+      <span class="hk-hero__cloud hk-hero__cloud--1"><span data-rd-float="16">${ic('cloud', 72)}</span></span>
+      <span class="hk-hero__cloud hk-hero__cloud--2"><span data-rd-float="12">${ic('cloud', 56)}</span></span>
+      <span class="hk-hero__twk hk-hero__twk--1"><span data-rd-twinkle="3">${ic('star', 28)}</span></span>
+      <span class="hk-hero__twk hk-hero__twk--2"><span data-rd-twinkle="3.6">${ic('sparkles', 28)}</span></span>
+      <span class="hk-hero__rainbow">${ic('rainbow', 72)}</span>
+      <span class="hk-hero__stack">${THU.map((s, i) => `<span class="hk-hero__ani hk-hero__ani--${s}" style="--i:${THU.length - 1 - i}">${ic(s, 96, 'rd-sticker rd-sticker--thin')}</span>`).join('')}</span>
+      <div class="rd-grow rd-grow--bare hk-hero__grow" data-rd-grow data-rd-auto="off" data-rd-bubble=""${intro ? ` data-hk-intro="${cm}" data-rd-cm="60" data-rd-cm-to="${cm}" data-rd-kid="baby"` : ` data-rd-cm="${cm}" data-rd-kid="${kid === 'boy' ? 'girl' : kid}"`}></div>
+      <div class="hk-hero__say"></div>
+    </div>`;
+  }
+
   function veThe() {
     const hs = tam || doc();
     if (!hs) {
-      the.innerHTML = `<div class="hk-card">
-        <div class="hk-card__ic" aria-hidden="true">📏</div>
-        <div class="hk-card__txt">
-          <h2>Theo dõi sức khỏe con</h2>
-          <p>Nhập chiều cao, cân nặng của bé để so với chuẩn WHO, xem bé cần những chất gì và nhận gợi ý sản phẩm hợp tuổi.</p>
-          <ul class="hk-card__list"><li>${I.check}Chuẩn WHO cho bé 0-19 tuổi</li><li>${I.check}Dinh dưỡng theo từng giai đoạn</li><li>${I.check}Lưu lại để theo dõi lần sau</li></ul>
+      the.innerHTML = `<div class="hk-hero">
+        <div class="hk-hero__txt">
+          <div class="hk-hero__eyebrow" data-hk-h1></div>
+          <p class="hk-hero__big rd-squiggle">Lớn lên <span>cùng bé</span></p>
+          <p class="hk-hero__sub">Đo chiều cao, cân nặng của bé theo chuẩn WHO, xem bé cần gì mỗi ngày và chọn đúng món hợp tuổi.</p>
+          <div class="hk-hero__cta">
+            <span class="hk-hero__main">
+              <button class="btn btn--primary btn--lg" type="button" data-hk-mo>${ic('ruler', 28)}Đo chỉ số cho bé</button>
+              <span class="rd-sticker-text hk-hero__free" aria-hidden="true">Miễn phí</span>
+            </span>
+            <a class="hk-hero__shop" href="collections.html">Mua sắm cho bé ${I.arrowR}</a>
+          </div>
+          <ul class="hk-hero__trust">
+            <li>${ic('check', 24)}Chuẩn WHO cho bé 0–19 tuổi</li>
+            <li>${ic('phone', 24)}Số đo chỉ lưu trên máy của mẹ</li>
+            <li>${ic('expert', 24)}Chuyên gia dinh dưỡng tư vấn miễn phí</li>
+          </ul>
         </div>
-        <div class="hk-card__acts"><button class="btn btn--primary btn--lg" type="button" data-hk-mo>Kiểm tra cho bé ${I.arrowR}</button></div>
+        <div data-hk-art></div>
       </div>`;
+      // Ví dụ khớp nhân vật cuối (bé gái ~6 tuổi): 115 cm ≈ trung bình WHO bé gái 6 tuổi (115,1 cm)
+      datArt('vd', heroArt({ cm: 115, intro: true }), '<span class="rd-sticker-text rd-sticker-text--sky">Ví dụ</span><b>Bé Na · 6 tuổi</b><span class="hk-hero__ok">Chiều cao bình thường</span>');
+      ganH1();
       kq.hidden = true; kq.innerHTML = '';
       return;
     }
     const lan = hs.log[hs.log.length - 1];
     if (!window.WHO_GROWTH) { taiWho().then(veThe, () => {}); }
     const k = window.WHO_GROWTH ? danhGia(hs, lan) : null;
-    the.innerHTML = `<div class="hk-card hk-card--saved">
-      <div class="hk-card__ic" aria-hidden="true">📏</div>
-      <div class="hk-card__txt">
-        <h2>${tam ? 'Kết quả tra cứu' : 'Theo dõi sức khỏe con'}</h2>
-        <p>${tam ? 'Số đo' : 'Lần đo gần nhất'} của <b>${tenBe(hs)}</b> (${tuoiChu(hs.dob, lan.d)}) ngày ${hienNgay(lan.d)}: ${so(lan.h)} cm, ${so(lan.w)} kg.${tam ? ' <span class="hk-tam">Chưa lưu</span>' : ''}</p>
+    const thang = soNgay(hs.dob, lan.d) / NGAY_MOI_THANG;
+    const kid = thang < 12 ? 'baby' : thang < 36 ? 'child' : hs.sex === 1 ? 'boy' : 'girl';
+    const ten = tenBe(hs), hfa = k && k.chiSo.hfa;
+    the.innerHTML = `<div class="hk-hero hk-hero--saved">
+      <div class="hk-hero__txt">
+        <div class="hk-hero__eyebrow" data-hk-h1></div>
+        <p class="hk-hero__big hk-hero__big--hi">${tam ? `Kết quả tra cứu của <span>${ten}</span>` : `Chào mẹ của <span>${ten}</span>`}</p>
+        <p class="hk-hero__sub">${tam ? 'Số đo' : 'Lần đo gần nhất'} ngày ${hienNgay(lan.d)}: <b class="rd-num">${so(lan.h)} cm</b>, <b class="rd-num">${so(lan.w)} kg</b> (${tuoiChu(hs.dob, lan.d)}).${tam ? ' <span class="hk-tam">Chưa lưu</span>' : ''}</p>
         ${k ? `<div class="hk-pills">${['wfa', 'hfa', 'bfa'].filter((i) => k.chiSo[i]).map((i) => `<span class="hk-pill hk-tone--${k.chiSo[i].tone}">${IND[i].replace(' theo tuổi', '')}: ${k.chiSo[i].label}</span>`).join('')}</div>` : ''}
+        <div class="hk-hero__cta hk-hero__cta--saved">
+          <button class="btn btn--primary btn--lg" type="button" data-hk-xem aria-expanded="${moRong}" aria-controls="hkResult">${moRong ? 'Thu gọn kết quả' : 'Xem kết quả'}</button>
+          ${tam ? '<button class="btn btn--teal" type="button" data-hk-luu>Lưu thông tin bé</button>' : ''}
+          <button class="btn btn--outline" type="button" data-hk-mo>${ic('ruler', 24)}${tam ? 'Tra cứu bé khác' : 'Đo lần mới'}</button>
+          ${tam && doc() ? '<button class="btn btn--ghost" type="button" data-hk-ve>Về bé đã lưu</button>' : ''}
+        </div>
       </div>
-      <div class="hk-card__acts">
-        <button class="btn btn--primary" type="button" data-hk-xem aria-expanded="${moRong}" aria-controls="hkResult">${moRong ? 'Thu gọn kết quả' : 'Xem kết quả'}</button>
-        ${tam ? '<button class="btn btn--teal" type="button" data-hk-luu>Lưu thông tin bé</button>' : ''}
-        <button class="btn btn--outline" type="button" data-hk-mo>${tam ? 'Tra cứu bé khác' : 'Đo lần mới'}</button>
-        ${tam && doc() ? '<button class="btn btn--ghost" type="button" data-hk-ve>Về bé đã lưu</button>' : ''}
+      <div data-hk-art></div>
+    </div>`;
+    datArt(`${hs.sex}|${hs.dob}|${lan.d}|${lan.h}`, heroArt({ cm: Math.round(lan.h), intro: kid === 'girl' || kid === 'boy', kid, trai: hs.sex === 1, teen: thang >= 144 }),
+      `${ic(kid === 'boy' ? 'boy' : kid === 'girl' ? 'girl' : kid, 28)}<b>${ten[0].toUpperCase() + ten.slice(1)} · ${tuoiChu(hs.dob, lan.d)}</b>${hfa ? `<span class="hk-hero__ok hk-tone--${hfa.tone}">Chiều cao: ${hfa.label.toLowerCase()}</span>` : ''}`);
+    ganH1();
+    if (moRong && k) veKetQua(hs, k); else { kq.hidden = true; kq.innerHTML = ''; }
+  }
+
+  /* ---------------- "Bé nhà mình đang cần gì?" (spec mục 8.2 + 7.1): sân khấu rd-grow + chip từ window.NEEDS ---------------- */
+  function veNhuCau() {
+    const o = $('#hkNeed', root), ds = window.NEEDS || [];
+    if (!o || !ds.length) return;
+    const dau = ds[0], NI = MC.RD_NEED_ICON || {};
+    o.innerHTML = `<div class="hk-need" data-rd-grow-scope>
+      <div class="section-head hk-need__head"><div>
+        <h2>Bé nhà mình đang cần gì?</h2>
+        <p>Mẹ chạm vào một nhu cầu để xem bé “lớn lên”, rồi xem các món hợp với bé.</p>
+      </div></div>
+      <div class="hk-need__body">
+        <div class="hk-need__art"><div class="rd-grow hk-need__stage" data-rd-grow data-rd-cycle="tang-chieu-cao,tang-can,de-khang,tri-nao,sua-tuoi,organic"></div></div>
+        <div class="hk-need__side">
+          <div class="hk-need__chips" role="group" aria-label="Nhu cầu của bé">${ds.map((n) => `<button type="button" class="chip hk-need__chip" data-rd-need="${esc(n.key)}" aria-pressed="false">${ic(NI[n.key] || 'sparkles', 26)}<span>${esc(n.label)}</span></button>`).join('')}</div>
+          <a class="btn btn--outline btn--lg hk-need__go" href="collections.html?need=${encodeURIComponent(dau.key)}" data-rd-need-link>Xem món hợp nhu cầu <b data-rd-need-label>${esc(dau.label)}</b>${I.arrowR}</a>
+        </div>
       </div>
     </div>`;
-    if (moRong && k) veKetQua(hs, k); else { kq.hidden = true; kq.innerHTML = ''; }
+    /* Chip đang diễn (rd-motion gắn .rd-on) → aria-pressed cho trình đọc màn hình */
+    o.addEventListener('rd:grow', () => { $$('[data-rd-need]', o).forEach((c) => c.setAttribute('aria-pressed', c.classList.contains('rd-on') ? 'true' : 'false')); });
   }
 
   /* ---------------- Đánh giá chi tiết theo số đo thật ----------------
@@ -607,13 +708,14 @@
     kq.hidden = false;
     kq.innerHTML = `
       <div class="hk-res__head">
+        <img class="rd-doodle rd-doodle--sm hk-res__doodle" src="img/rd/doodles/mam-cay-vui.svg" alt="" width="48" height="48" loading="lazy">
         <h3>Kết quả của ${tenBe(hs)}</h3>
         <p>${gioi(hs.sex)[0].toUpperCase() + gioi(hs.sex).slice(1)}, ${tuoiChu(hs.dob, lan.d)}, đo ngày ${hienNgay(lan.d)}. BMI ${so(k.bmi)}.</p>
       </div>
       <p class="hk-verdict hk-tone--${canhBao.length ? 'warn' : 'good'}">${nhanXet}${truoc ? ` So với lần đo ${hienNgay(truoc.d)}: ${chenh(lan.h, truoc.h, 1)} cm, ${chenh(lan.w, truoc.w, 1)} kg.` : ''}</p>
       <div class="hk-metrics hk-metrics--${Object.keys(c).length}">${['wfa', 'hfa', 'bfa'].filter((i) => c[i]).map((i) => oChiSo(c[i], hs, k)).join('')}</div>
       <div class="hk-block hk-eval">
-        <div class="hk-block__head"><h3>Đánh giá chi tiết</h3></div>
+        <div class="hk-block__head"><h3>${ic('stethoscope', 32)}Đánh giá chi tiết</h3></div>
         <p class="hk-eval__tong hk-tone--${dg.tone}">${dg.tong}</p>
         <ul class="hk-eval__ds">${dg.dong.map((d) => `<li class="hk-tone--${d.tone}"><div class="hk-eval__dau"><span>${d.ten}</span><b>${d.so}</b></div><p><span class="hk-eval__so">${d.chi}</span> ${d.txt}</p></li>`).join('')}</ul>
         ${dg.da ? `<p class="hk-eval__da"><b>Đà tăng trưởng:</b> ${dg.da}</p>` : ''}
@@ -622,7 +724,7 @@
       ${!c.wfa ? '<p class="hk-note">WHO chỉ dùng cân nặng theo tuổi cho trẻ dưới 10 tuổi, trên 10 tuổi mẹ xem chỉ số BMI.</p>' : ''}
 
       <div class="hk-block hk-chart">
-        <div class="hk-block__head"><h3>Biểu đồ tăng trưởng</h3>
+        <div class="hk-block__head"><h3>${ic('ruler', 32)}Biểu đồ tăng trưởng</h3>
           <div class="chips" role="tablist">${bd.map((i) => `<button class="chip chip--sm ${i === bieuDoDangXem ? 'is-active' : ''}" type="button" role="tab" aria-selected="${i === bieuDoDangXem}" data-hk-bd="${i}">${IND[i].replace(' theo tuổi', '')}</button>`).join('')}</div>
         </div>
         <div class="hk-chart__body">
@@ -635,18 +737,18 @@
       </div>
 
       <div class="hk-block hk-nutri">
-        <div class="hk-block__head"><h3>Bé ${esc(tuoi.label)} cần gì mỗi ngày?</h3></div>
+        <div class="hk-block__head"><h3>${ic('apple', 32)}Bé ${esc(tuoi.label)} cần gì mỗi ngày?</h3></div>
         <p class="hk-nutri__focus">${gd.trongTam}</p>
         <div class="hk-nutri__grid">${gd.chat.map(([ten, luong, viSao, nguon]) => `<div class="hk-nut"><div class="hk-nut__top"><b>${ten}</b><span>${typeof luong === 'object' ? luong[hs.sex] : luong}</span></div><p>${viSao}</p><small>${nguon}</small></div>`).join('')}</div>
         <p class="hk-src">Lượng khuyến nghị mỗi ngày theo Viện Y học Hoa Kỳ (IOM, NIH); DHA theo Cơ quan An toàn Thực phẩm châu Âu (EFSA).</p>
       </div>
 
       ${an ? `<div class="hk-block hk-an">
-        <div class="hk-block__head"><h3>Chế độ ăn cho bé ${esc(tuoi.label)}</h3><p>Lượng tham khảo trung bình, mẹ điều chỉnh theo sức ăn của bé</p></div>
+        <div class="hk-block__head"><h3>${ic('rice', 32)}Chế độ ăn cho bé ${esc(tuoi.label)}</h3><p>Lượng tham khảo trung bình, mẹ điều chỉnh theo sức ăn của bé</p></div>
         <div class="hk-vd__chi">${an.bua.map(([ten, gt]) => `<div><small>${ten}</small><b>${gt}</b></div>`).join('')}</div>
         ${anThem.length ? `<div class="hk-vd__them">${anThem.map((t) => `<p>${t}</p>`).join('')}</div>` : ''}
         <h4 class="hk-an__t">${k.thang < 6 ? 'Mẹ cần biết' : 'Mỗi ngày nên có'}</h4>
-        <div class="hk-vd__ds">${an.nhom.map(([ic, ten, mo]) => `<div class="hk-vd__o"><span class="hk-vd__ic" aria-hidden="true">${ic}</span><div><b>${ten}</b><p>${mo}</p></div></div>`).join('')}</div>
+        <div class="hk-vd__ds">${an.nhom.map(([ic, ten, mo]) => `<div class="hk-vd__o"><span class="hk-vd__ic" aria-hidden="true">${icE(ic, 32)}</span><div><b>${ten}</b><p>${mo}</p></div></div>`).join('')}</div>
         ${an.thucDon.length ? `<h4 class="hk-an__t">Thực đơn gợi ý 1 ngày</h4><ol class="hk-an__td">${an.thucDon.map(([gio, mon]) => `<li><span>${gio}</span><p>${mon}</p></li>`).join('')}</ol>` : ''}
         <h4 class="hk-an__t">Nên hạn chế</h4>
         <ul class="hk-an__tranh">${an.tranh.map((t) => `<li>${t}</li>`).join('')}</ul>
@@ -655,12 +757,12 @@
       </div>` : ''}
 
       ${vd ? `<div class="hk-block hk-vd">
-        <div class="hk-block__head"><h3>Vận động cho bé ${esc(tuoi.label)}</h3></div>
+        <div class="hk-block__head"><h3>${ic('basketball', 32)}Vận động cho bé ${esc(tuoi.label)}</h3></div>
         <p class="hk-nutri__focus">${vd.trongTam}</p>
         <div class="hk-vd__chi">${vd.chiTieu.map(([ten, gt]) => `<div><small>${ten}</small><b>${gt}</b></div>`).join('')}</div>
         ${vdThem.length ? `<div class="hk-vd__them">${vdThem.map((t) => `<p>${t}</p>`).join('')}</div>` : ''}
         <h4 class="hk-an__t">${vdGioi ? `Môn phù hợp cho ${gioi(hs.sex)}` : 'Gợi ý vận động'}</h4>
-        <div class="hk-vd__ds">${(vdGioi ? vdGioi.goiY : vd.goiY).map(([ic, ten, mo]) => `<div class="hk-vd__o"><span class="hk-vd__ic" aria-hidden="true">${ic}</span><div><b>${ten}</b><p>${mo}</p></div></div>`).join('')}</div>
+        <div class="hk-vd__ds">${(vdGioi ? vdGioi.goiY : vd.goiY).map(([ic, ten, mo]) => `<div class="hk-vd__o"><span class="hk-vd__ic" aria-hidden="true">${icE(ic, 32)}</span><div><b>${ten}</b><p>${mo}</p></div></div>`).join('')}</div>
         ${vdGioi ? `<p class="hk-vd__luu">${vdGioi.ghi}</p>` : ''}
         <p class="hk-vd__luu">${vd.luuY}</p>
         <p class="hk-src">Thời lượng vận động theo khuyến nghị của Tổ chức Y tế Thế giới (WHO); giấc ngủ theo Viện Hàn lâm Y học Giấc ngủ Hoa Kỳ (AASM). Bé có bệnh lý, mẹ hỏi bác sĩ trước khi cho bé tập môn mới.</p>
@@ -669,12 +771,13 @@
       ${k.thang < 24 ? '<p class="hk-milk">Sữa mẹ là thức ăn tốt nhất cho sự phát triển của trẻ. Các sản phẩm bên dưới không thay thế sữa mẹ.</p>' : ''}
 
       ${g.chon.length ? `<div class="hk-block">
-        <div class="hk-block__head"><h3>Gợi ý cho ${tenBe(hs)}</h3><p>Chọn theo tình trạng của bé và độ tuổi ${esc(tuoi.label)}</p></div>
+        <div class="hk-block__head"><h3>${ic('gift', 32)}Gợi ý cho ${tenBe(hs)}</h3><p>Chọn theo tình trạng của bé và độ tuổi ${esc(tuoi.label)}</p></div>
         <div class="grid grid--4">${g.chon.map(sp).join('')}</div>
       </div>` : ''}
 
       <form class="hk-tv" id="hkTv" novalidate>
         <div class="hk-tv__txt">
+          ${ic('expert', 56, 'rd-sticker hk-tv__ic')}
           <h3>Mẹ để lại số điện thoại để Hương Chất Kids tư vấn cho mẹ</h3>
           <p>Chuyên gia dinh dưỡng xem chỉ số của ${tenBe(hs)} rồi gọi tư vấn miễn phí: nên bổ sung gì, dùng sản phẩm nào, liều ra sao.</p>
         </div>
@@ -688,12 +791,12 @@
       </form>
 
       ${g.banChay.length ? `<div class="hk-block">
-        <div class="hk-block__head"><h3>Các bạn cùng tuổi đang dùng</h3><p>Sản phẩm cho bé ${esc(tuoi.label)} bán chạy nhất tại shop, xếp theo số đã bán trên Shopee</p></div>
+        <div class="hk-block__head"><h3>${ic('teddy', 32)}Các bạn cùng tuổi đang dùng</h3><p>Sản phẩm cho bé ${esc(tuoi.label)} bán chạy nhất tại shop, xếp theo số đã bán trên Shopee</p></div>
         <div class="row-scroll">${g.banChay.map((p) => productCard(p)).join('')}</div>
       </div>` : ''}
 
       ${g.them.length ? `<div class="hk-block">
-        <div class="hk-block__head"><h3>Gợi ý thêm cho mẹ</h3><p>Những sản phẩm khác cũng hợp với bé ${esc(tuoi.label)}</p></div>
+        <div class="hk-block__head"><h3>${ic('sparkles', 32)}Gợi ý thêm cho mẹ</h3><p>Những sản phẩm khác cũng hợp với bé ${esc(tuoi.label)}</p></div>
         <div class="row-scroll">${g.them.map((p) => productCard(p)).join('')}</div>
         <a class="link hk-all" href="collections.html?age=${k.giaiDoan}">Xem tất cả sản phẩm cho bé ${esc(tuoi.label)} ${I.arrowR}</a>
       </div>` : ''}
@@ -707,6 +810,8 @@
       </div>`;
     hienTai = { hs, k, dg };
     veBieuDo();
+    /* Báo cho lớp hiển thị "so sánh bé với chuẩn WHO" (js/rd-so-sanh.js); không ảnh hưởng cách tính */
+    try { document.dispatchEvent(new CustomEvent('hk:ketqua', { detail: { hs, k, chon: g.chon, lyDo: g.lyDo } })); } catch { /* bỏ qua */ }
   }
   function veBieuDo() {
     const el = $('#hkChart', root);
@@ -722,13 +827,14 @@
     taiWho().catch(() => {});
     const daLuu = doc(), hs = daLuu || {};
     const homNay = isoNgay(new Date());
-    $('#callbackContent').innerHTML = `<div class="modal__head"><h3>📏 Thông tin của bé</h3><button class="modal__close" type="button" data-close-modal aria-label="Đóng">${I.close}</button></div>
+    $('#callbackContent').innerHTML = `<div class="modal__head hk-form__head"><h3>${ic('ruler', 32)}Thông tin của bé</h3><button class="modal__close" type="button" data-close-modal aria-label="Đóng">${I.close}</button></div>
       <form class="modal__body hk-form" id="hkForm" novalidate>
+        <div class="hk-form__hi"><img class="rd-doodle rd-doodle--sm" src="img/rd/doodles/khuc-xuong-vui.svg" alt="" width="48" height="48"><p>Mẹ nhập giới tính, ngày sinh, chiều cao và cân nặng của bé. Kết quả hiện ngay, theo chuẩn WHO.</p></div>
         <div class="field"><label for="hkTen">Tên bé (không bắt buộc)</label><input class="input" id="hkTen" name="name" maxlength="30" autocomplete="off" value="${esc(hs.name || '')}"></div>
         <fieldset class="field hk-sex"><legend>Giới tính <span>*</span></legend>
           <div class="chips">
-            <label class="chip"><input type="radio" name="sex" value="1" ${hs.sex === 1 ? 'checked' : ''}>Bé trai</label>
-            <label class="chip"><input type="radio" name="sex" value="2" ${hs.sex === 2 ? 'checked' : ''}>Bé gái</label>
+            <label class="chip"><input type="radio" name="sex" value="1" ${hs.sex === 1 ? 'checked' : ''}>${ic('boy', 28)}Bé trai</label>
+            <label class="chip"><input type="radio" name="sex" value="2" ${hs.sex === 2 ? 'checked' : ''}>${ic('girl', 28)}Bé gái</label>
           </div>
           <small class="form-error" data-err="sex"></small>
         </fieldset>
@@ -827,12 +933,24 @@
       const r = await MC.loyaltyApi('leadTuVan', { nguon: 'suc-khoe', ten, sdt, tenBe: hs.name || '', ngaySinh: hs.dob, gioiTinh: hs.sex, tuoi: tuoiChu(hs.dob, lan.d), cao: lan.h, nang: lan.w,
         danhGia: [dg.tong, chiTiet && chiTiet + '.', dg.da].filter(Boolean).join(' '), tinhTrang: canChu, link: location.href.split('#')[0] });
       if (!r || !r.ok) throw new Error((r && r.msg) || 'Chưa gửi được, mẹ thử lại nhé');
-      f.innerHTML = `<div class="hk-tv__xong">${I.check}<div><b>Đã gửi chỉ số của ${tenBe(hs)} cho chuyên gia</b><p>Hương Chất Kids sẽ gọi số <b>${esc(sdt)}</b> ${MC.hoursNote ? MC.hoursNote() : 'sớm'} để tư vấn cho mẹ. Mẹ để ý điện thoại nhé 💗</p></div></div>`;
+      f.innerHTML = `<div class="hk-tv__xong">${I.check}<div><b>Đã gửi chỉ số của ${tenBe(hs)} cho chuyên gia</b><p>Hương Chất Kids sẽ gọi số <b>${esc(sdt)}</b> ${MC.hoursNote ? MC.hoursNote() : 'sớm'} để tư vấn cho mẹ. Mẹ để ý điện thoại nhé ${ic('heart-pink', 20)}</p></div></div>`;
     } catch (err) {
       nut.disabled = false; nut.innerHTML = `${I.headset}Nhờ tư vấn cho bé`; loi.textContent = err.message;
     }
   });
   document.addEventListener('input', (e) => { if (e.target.closest('#hkForm')) delete e.target.closest('#hkForm').dataset.daCanhBao; });
 
+  /* Link "Đo chỉ số cho bé" (index.html#do-chi-so: pill trên header, menu mobile, nút giữa thanh dưới):
+     mở form như nút [data-hk-mo], rồi xoá dấu # để bấm lại lần nữa vẫn mở được */
+  function moTuLink() {
+    if (location.hash !== '#do-chi-so') return;
+    history.replaceState(null, '', location.pathname + location.search);
+    if ($('#callbackContent')) moForm();
+    else window.addEventListener('load', () => { if ($('#callbackContent')) moForm(); }, { once: true });
+  }
+  window.addEventListener('hashchange', moTuLink);
+
   veThe();
+  veNhuCau();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', moTuLink, { once: true }); else moTuLink();
 })();

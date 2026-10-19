@@ -1,0 +1,566 @@
+[
+ {
+  "slug": "baby",
+  "file": "img/rd/icons/baby.webp",
+  "fluent": "Baby (Light skin tone)",
+  "kb": 5.9
+ },
+ {
+  "slug": "child",
+  "file": "img/rd/icons/child.webp",
+  "fluent": "Child (Light skin tone)",
+  "kb": 6.2
+ },
+ {
+  "slug": "girl",
+  "file": "img/rd/icons/girl.webp",
+  "fluent": "Girl (Light skin tone)",
+  "kb": 7
+ },
+ {
+  "slug": "boy",
+  "file": "img/rd/icons/boy.webp",
+  "fluent": "Boy (Light skin tone)",
+  "kb": 6.2
+ },
+ {
+  "slug": "pregnant",
+  "file": "img/rd/icons/pregnant.webp",
+  "fluent": "Pregnant woman (Light skin tone)",
+  "kb": 5.1
+ },
+ {
+  "slug": "mom-feeding",
+  "file": "img/rd/icons/mom-feeding.webp",
+  "fluent": "Woman feeding baby (Light skin tone)",
+  "kb": 6.6
+ },
+ {
+  "slug": "expert",
+  "file": "img/rd/icons/expert.webp",
+  "fluent": "Woman health worker (Light skin tone)",
+  "kb": 5.6
+ },
+ {
+  "slug": "muscle",
+  "file": "img/rd/icons/muscle.webp",
+  "fluent": "Flexed biceps (Light skin tone)",
+  "kb": 5.4
+ },
+ {
+  "slug": "giraffe",
+  "file": "img/rd/icons/giraffe.webp",
+  "fluent": "Giraffe",
+  "kb": 7.6
+ },
+ {
+  "slug": "teddy",
+  "file": "img/rd/icons/teddy.webp",
+  "fluent": "Teddy bear",
+  "kb": 7.3
+ },
+ {
+  "slug": "elephant",
+  "file": "img/rd/icons/elephant.webp",
+  "fluent": "Elephant",
+  "kb": 5
+ },
+ {
+  "slug": "bunny",
+  "file": "img/rd/icons/bunny.webp",
+  "fluent": "Rabbit face",
+  "kb": 6.1
+ },
+ {
+  "slug": "chick",
+  "file": "img/rd/icons/chick.webp",
+  "fluent": "Baby chick",
+  "kb": 5.4
+ },
+ {
+  "slug": "hatching-chick",
+  "file": "img/rd/icons/hatching-chick.webp",
+  "fluent": "Hatching chick",
+  "kb": 5.9
+ },
+ {
+  "slug": "lion",
+  "file": "img/rd/icons/lion.webp",
+  "fluent": "Lion",
+  "kb": 7.1
+ },
+ {
+  "slug": "panda",
+  "file": "img/rd/icons/panda.webp",
+  "fluent": "Panda",
+  "kb": 6.2
+ },
+ {
+  "slug": "bear",
+  "file": "img/rd/icons/bear.webp",
+  "fluent": "Bear",
+  "kb": 6.1
+ },
+ {
+  "slug": "fox",
+  "file": "img/rd/icons/fox.webp",
+  "fluent": "Fox",
+  "kb": 6.2
+ },
+ {
+  "slug": "penguin",
+  "file": "img/rd/icons/penguin.webp",
+  "fluent": "Penguin",
+  "kb": 5.4
+ },
+ {
+  "slug": "ruler",
+  "file": "img/rd/icons/ruler.webp",
+  "fluent": "Straight ruler",
+  "kb": 4.3
+ },
+ {
+  "slug": "bone",
+  "file": "img/rd/icons/bone.webp",
+  "fluent": "Bone",
+  "kb": 4.4
+ },
+ {
+  "slug": "shield",
+  "file": "img/rd/icons/shield.webp",
+  "fluent": "Shield",
+  "kb": 4.6
+ },
+ {
+  "slug": "brain",
+  "file": "img/rd/icons/brain.webp",
+  "fluent": "Brain",
+  "kb": 5.2
+ },
+ {
+  "slug": "bulb",
+  "file": "img/rd/icons/bulb.webp",
+  "fluent": "Light bulb",
+  "kb": 4.9
+ },
+ {
+  "slug": "bowl",
+  "file": "img/rd/icons/bowl.webp",
+  "fluent": "Bowl with spoon",
+  "kb": 6
+ },
+ {
+  "slug": "honey",
+  "file": "img/rd/icons/honey.webp",
+  "fluent": "Honey pot",
+  "kb": 4.7
+ },
+ {
+  "slug": "sprout",
+  "file": "img/rd/icons/sprout.webp",
+  "fluent": "Seedling",
+  "kb": 5
+ },
+ {
+  "slug": "herb",
+  "file": "img/rd/icons/herb.webp",
+  "fluent": "Herb",
+  "kb": 8.5
+ },
+ {
+  "slug": "pill",
+  "file": "img/rd/icons/pill.webp",
+  "fluent": "Pill",
+  "kb": 4.7
+ },
+ {
+  "slug": "sun-face",
+  "file": "img/rd/icons/sun-face.webp",
+  "fluent": "Sun with face",
+  "kb": 7.1
+ },
+ {
+  "slug": "leafy",
+  "file": "img/rd/icons/leafy.webp",
+  "fluent": "Leafy green",
+  "kb": 6.6
+ },
+ {
+  "slug": "milk",
+  "file": "img/rd/icons/milk.webp",
+  "fluent": "Glass of milk",
+  "kb": 4
+ },
+ {
+  "slug": "juice",
+  "file": "img/rd/icons/juice.webp",
+  "fluent": "Beverage box",
+  "kb": 3.8
+ },
+ {
+  "slug": "rice-ball",
+  "file": "img/rd/icons/rice-ball.webp",
+  "fluent": "Rice ball",
+  "kb": 4.4
+ },
+ {
+  "slug": "apple",
+  "file": "img/rd/icons/apple.webp",
+  "fluent": "Red apple",
+  "kb": 5.4
+ },
+ {
+  "slug": "carrot",
+  "file": "img/rd/icons/carrot.webp",
+  "fluent": "Carrot",
+  "kb": 6.1
+ },
+ {
+  "slug": "rice",
+  "file": "img/rd/icons/rice.webp",
+  "fluent": "Cooked rice",
+  "kb": 5.9
+ },
+ {
+  "slug": "lotion",
+  "file": "img/rd/icons/lotion.webp",
+  "fluent": "Lotion bottle",
+  "kb": 3.3
+ },
+ {
+  "slug": "droplet",
+  "file": "img/rd/icons/droplet.webp",
+  "fluent": "Droplet",
+  "kb": 4.2
+ },
+ {
+  "slug": "tooth",
+  "file": "img/rd/icons/tooth.webp",
+  "fluent": "Tooth",
+  "kb": 5.1
+ },
+ {
+  "slug": "heart-grow",
+  "file": "img/rd/icons/heart-grow.webp",
+  "fluent": "Growing heart",
+  "kb": 5.9
+ },
+ {
+  "slug": "heart-sparkle",
+  "file": "img/rd/icons/heart-sparkle.webp",
+  "fluent": "Sparkling heart",
+  "kb": 6.3
+ },
+ {
+  "slug": "heart-pink",
+  "file": "img/rd/icons/heart-pink.webp",
+  "fluent": "Pink heart",
+  "kb": 5.1
+ },
+ {
+  "slug": "sparkles",
+  "file": "img/rd/icons/sparkles.webp",
+  "fluent": "Sparkles",
+  "kb": 7.2
+ },
+ {
+  "slug": "star",
+  "file": "img/rd/icons/star.webp",
+  "fluent": "Star",
+  "kb": 5.3
+ },
+ {
+  "slug": "star-glow",
+  "file": "img/rd/icons/star-glow.webp",
+  "fluent": "Glowing star",
+  "kb": 7.8
+ },
+ {
+  "slug": "cloud",
+  "file": "img/rd/icons/cloud.webp",
+  "fluent": "Cloud",
+  "kb": 3.2
+ },
+ {
+  "slug": "rainbow",
+  "file": "img/rd/icons/rainbow.webp",
+  "fluent": "Rainbow",
+  "kb": 5.9
+ },
+ {
+  "slug": "balloon",
+  "file": "img/rd/icons/balloon.webp",
+  "fluent": "Balloon",
+  "kb": 5.1
+ },
+ {
+  "slug": "moon",
+  "file": "img/rd/icons/moon.webp",
+  "fluent": "Crescent moon",
+  "kb": 4.8
+ },
+ {
+  "slug": "sun",
+  "file": "img/rd/icons/sun.webp",
+  "fluent": "Sun",
+  "kb": 5.8
+ },
+ {
+  "slug": "kite",
+  "file": "img/rd/icons/kite.webp",
+  "fluent": "Kite",
+  "kb": 8.1
+ },
+ {
+  "slug": "footprints",
+  "file": "img/rd/icons/footprints.webp",
+  "fluent": "Footprints",
+  "kb": 7.1
+ },
+ {
+  "slug": "puzzle",
+  "file": "img/rd/icons/puzzle.webp",
+  "fluent": "Puzzle piece",
+  "kb": 7.3
+ },
+ {
+  "slug": "backpack",
+  "file": "img/rd/icons/backpack.webp",
+  "fluent": "Backpack",
+  "kb": 5.3
+ },
+ {
+  "slug": "basketball",
+  "file": "img/rd/icons/basketball.webp",
+  "fluent": "Basketball",
+  "kb": 7.7
+ },
+ {
+  "slug": "gift",
+  "file": "img/rd/icons/gift.webp",
+  "fluent": "Wrapped gift",
+  "kb": 4.3
+ },
+ {
+  "slug": "party",
+  "file": "img/rd/icons/party.webp",
+  "fluent": "Party popper",
+  "kb": 10.8
+ },
+ {
+  "slug": "ribbon",
+  "file": "img/rd/icons/ribbon.webp",
+  "fluent": "Ribbon",
+  "kb": 6.3
+ },
+ {
+  "slug": "truck",
+  "file": "img/rd/icons/truck.webp",
+  "fluent": "Delivery truck",
+  "kb": 5
+ },
+ {
+  "slug": "package",
+  "file": "img/rd/icons/package.webp",
+  "fluent": "Package",
+  "kb": 4.8
+ },
+ {
+  "slug": "check",
+  "file": "img/rd/icons/check.webp",
+  "fluent": "Check mark button",
+  "kb": 3.2
+ },
+ {
+  "slug": "chat",
+  "file": "img/rd/icons/chat.webp",
+  "fluent": "Speech balloon",
+  "kb": 4
+ },
+ {
+  "slug": "phone",
+  "file": "img/rd/icons/phone.webp",
+  "fluent": "Telephone receiver",
+  "kb": 5.6
+ },
+ {
+  "slug": "house",
+  "file": "img/rd/icons/house.webp",
+  "fluent": "House",
+  "kb": 4.7
+ },
+ {
+  "slug": "cart",
+  "file": "img/rd/icons/cart.webp",
+  "fluent": "Shopping cart",
+  "kb": 8.8
+ },
+ {
+  "slug": "user",
+  "file": "img/rd/icons/user.webp",
+  "fluent": "Bust in silhouette",
+  "kb": 4
+ },
+ {
+  "slug": "search",
+  "file": "img/rd/icons/search.webp",
+  "fluent": "Magnifying glass tilted left",
+  "kb": 5.8
+ },
+ {
+  "slug": "ticket",
+  "file": "img/rd/icons/ticket.webp",
+  "fluent": "Ticket",
+  "kb": 3.5
+ },
+ {
+  "slug": "flash",
+  "file": "img/rd/icons/flash.webp",
+  "fluent": "High voltage",
+  "kb": 3
+ },
+ {
+  "slug": "fire",
+  "file": "img/rd/icons/fire.webp",
+  "fluent": "Fire",
+  "kb": 5
+ },
+ {
+  "slug": "clock",
+  "file": "img/rd/icons/clock.webp",
+  "fluent": "Alarm clock",
+  "kb": 7.4
+ },
+ {
+  "slug": "stethoscope",
+  "file": "img/rd/icons/stethoscope.webp",
+  "fluent": "Stethoscope",
+  "kb": 7.4
+ },
+ {
+  "slug": "bottle",
+  "file": "img/rd/icons/bottle.webp",
+  "fluent": "Baby bottle",
+  "kb": 5.5
+ },
+ {
+  "slug": "hug",
+  "file": "img/rd/icons/hug.webp",
+  "fluent": "Hugging face",
+  "kb": 7.7
+ },
+ {
+  "slug": "love",
+  "file": "img/rd/icons/love.webp",
+  "fluent": "Smiling face with hearts",
+  "kb": 7.8
+ },
+ {
+  "slug": "factory",
+  "file": "img/rd/icons/factory.webp",
+  "fluent": "Factory",
+  "kb": 4.7
+ },
+ {
+  "slug": "airplane",
+  "file": "img/rd/icons/airplane.webp",
+  "fluent": "Airplane",
+  "kb": 7.4
+ },
+ {
+  "slug": "airplane-up",
+  "file": "img/rd/icons/airplane-up.webp",
+  "fluent": "Airplane departure",
+  "kb": 6.1
+ },
+ {
+  "slug": "ship",
+  "file": "img/rd/icons/ship.webp",
+  "fluent": "Ship",
+  "kb": 3.9
+ },
+ {
+  "slug": "globe-asia",
+  "file": "img/rd/icons/globe-asia.webp",
+  "fluent": "Globe showing asia-australia",
+  "kb": 6
+ },
+ {
+  "slug": "label",
+  "file": "img/rd/icons/label.webp",
+  "fluent": "Label",
+  "kb": 5.4
+ },
+ {
+  "slug": "receipt",
+  "file": "img/rd/icons/receipt.webp",
+  "fluent": "Receipt",
+  "kb": 3.6
+ },
+ {
+  "slug": "scooter",
+  "file": "img/rd/icons/scooter.webp",
+  "fluent": "Motor scooter",
+  "kb": 5.1
+ },
+ {
+  "slug": "house-garden",
+  "file": "img/rd/icons/house-garden.webp",
+  "fluent": "House with garden",
+  "kb": 5.2
+ },
+ {
+  "slug": "bubbles",
+  "file": "img/rd/icons/bubbles.webp",
+  "fluent": "Bubbles",
+  "kb": 7
+ },
+ {
+  "slug": "tape",
+  "file": "img/rd/icons/tape.webp",
+  "fluent": "Roll of paper",
+  "kb": 3.1
+ },
+ {
+  "slug": "clipboard",
+  "file": "img/rd/icons/clipboard.webp",
+  "fluent": "Clipboard",
+  "kb": 2.2
+ },
+ {
+  "slug": "love-letter",
+  "file": "img/rd/icons/love-letter.webp",
+  "fluent": "Love letter",
+  "kb": 3.1
+ },
+ {
+  "slug": "confetti",
+  "file": "img/rd/icons/confetti.webp",
+  "fluent": "Confetti ball",
+  "kb": 9.9
+ },
+ {
+  "slug": "page",
+  "file": "img/rd/icons/page.webp",
+  "fluent": "Page facing up",
+  "kb": 1.8
+ },
+ {
+  "slug": "stopwatch",
+  "file": "img/rd/icons/stopwatch.webp",
+  "fluent": "Stopwatch",
+  "kb": 6.6
+ },
+ {
+  "slug": "handshake",
+  "file": "img/rd/icons/handshake.webp",
+  "fluent": "Handshake (Light skin tone)",
+  "kb": 5.7
+ },
+ {
+  "slug": "wave",
+  "file": "img/rd/icons/wave.webp",
+  "fluent": "Waving hand (Light skin tone)",
+  "kb": 8
+ }
+]

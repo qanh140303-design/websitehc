@@ -1,0 +1,111 @@
+/* =====================================================================
+   QUẢN TRỊ – lớp giao diện "Lớn lên cùng bé" (chỉ màu sắc, phông chữ, hiệu ứng)
+   Nạp SAU css/admin.css. Không đổi bố cục chức năng, không đụng JS.
+   Muốn bỏ: xoá dòng <link> tới file này trong admin.html.
+   ===================================================================== */
+:root {
+  /* hồng & xanh ngọc làm đậm vừa đủ để chữ nhỏ đạt tương phản AA trên nền trắng */
+  --pink: #CA4666; --pink-d: #B63F5D; --pink-50: #FFF4F7; --pink-100: #FCE3EA;
+  --teal: #12827A; --teal-50: #EAF6F4; --amber: #A86A07; --amber-50: #FFF6E3;
+  --ink: #2B2533; --ink-2: #574F61; --muted: #6E6678; --line: #F1E4EA; --line-2: #FBF3F5;
+  --bg: #FFFAF5; --card: #fff;
+  --r: 18px;
+  --sh: 0 1px 2px rgba(120, 40, 70, .05), 0 10px 26px -12px rgba(120, 40, 70, .18);
+  --rd-spring: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+body { background: var(--bg); }
+h1, h2, h3, h4, .kpi b, .top__logo { font-family: 'Baloo 2', Quicksand, 'Be Vietnam Pro', sans-serif; letter-spacing: -.005em; }
+h1, h2, h3 { font-weight: 800; }
+a { color: var(--pink); }
+
+/* ---------- Nút: bo tròn, nảy nhẹ ---------- */
+.btn { border-radius: 999px; transition: background-color .18s ease, color .18s ease, box-shadow .2s ease, transform .26s var(--rd-spring); }
+.btn:hover { filter: none; transform: translateY(-1px); box-shadow: 0 6px 14px -8px rgba(120, 40, 70, .35); }
+.btn:active { transform: scale(.97); }
+.btn:disabled { transform: none; box-shadow: none; }
+.btn--ghost:hover { background: var(--line-2); }
+.btn--sm { border-radius: 999px; }
+.btn:focus-visible, .icobtn:focus-visible, .pg__b:focus-visible, .nav__i:focus-visible {
+  outline: 3px solid color-mix(in srgb, #F0537A 45%, transparent); outline-offset: 2px;
+}
+.icobtn { border-radius: 10px; transition: background-color .15s ease, transform .2s var(--rd-spring); }
+.icobtn:active { transform: scale(.92); }
+
+/* ---------- Ô nhập ---------- */
+input, select, textarea { border-radius: 12px; border-color: #EADCE2; }
+input:focus, select:focus, textarea:focus { border-color: #F0537A; box-shadow: 0 0 0 4px color-mix(in srgb, #F0537A 18%, transparent); }
+.sw input:checked { background: var(--teal); }
+
+/* ---------- Khung trên & menu bên ---------- */
+.top { background: rgba(255, 255, 255, .88); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+.top__logo img { border-radius: 10px; }
+.side { background: #fff; border-right: 1px solid var(--line); }
+.nav { gap: 2px; }
+.nav__g { color: #8C8296; letter-spacing: .06em; }
+.nav__i { border-radius: 12px; transition: background-color .18s ease, color .18s ease, transform .22s var(--rd-spring); }
+.nav__i:hover { background: var(--line-2); transform: translateX(2px); }
+.nav__i.is-on { background: linear-gradient(90deg, var(--pink-100), var(--pink-50)); color: var(--pink-d); }
+.nav__i.is-on::before { content: ""; position: absolute; left: -6px; top: 8px; bottom: 8px; width: 4px; border-radius: 4px; background: #F0537A; }
+
+/* ---------- Thẻ & số liệu ---------- */
+.card { border-color: var(--line); border-radius: var(--r); }
+.card > h3 { font-size: 18px; }
+.kpi { border-color: var(--line); border-radius: var(--r); position: relative; overflow: hidden; }
+.kpi b { font-weight: 800; font-size: 24px; }
+.kpi--pink { background: linear-gradient(160deg, #FFF4F7, #fff 70%); }
+.kpi--teal { background: linear-gradient(160deg, #EAF6F4, #fff 70%); }
+.kpi--amber { background: linear-gradient(160deg, #FFF6E3, #fff 70%); }
+.kpi--red { background: linear-gradient(160deg, #FEF2F2, #fff 70%); }
+.box-note { border-radius: 14px; }
+
+/* ---------- Bảng ---------- */
+.tbl-wrap { border-radius: 16px; border-color: var(--line); }
+th { background: #FFF8F3; color: #7A7085; }
+tbody tr { transition: background-color .15s ease; }
+tbody tr:hover td { background: #FFF6F8; }
+.pg__b { border-radius: 999px; transition: background-color .15s ease, transform .2s var(--rd-spring); }
+.pg__b:hover:not(:disabled) { transform: translateY(-1px); }
+.pg__b.is-on { background: var(--pink); border-color: var(--pink); }
+
+/* ---------- Đăng nhập ---------- */
+.login {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(40% 50% at 12% 18%, #FDE3EA 0%, transparent 70%),
+    radial-gradient(38% 46% at 88% 82%, #DDF2EE 0%, transparent 70%),
+    radial-gradient(30% 36% at 85% 12%, #FFF0CC 0%, transparent 70%),
+    #FFFAF5;
+}
+.login::before, .login::after {
+  content: ""; position: absolute; pointer-events: none; background: center / contain no-repeat;
+  filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 8px 12px rgba(120, 40, 70, .16));
+}
+.login::before { width: 120px; height: 120px; left: max(4vw, 16px); bottom: 8vh; background-image: url("../../img/rd/icons/teddy.webp"); rotate: -8deg; }
+.login::after { width: 72px; height: 72px; right: max(6vw, 16px); top: 10vh; background-image: url("../../img/rd/icons/star-glow.webp"); rotate: 10deg; }
+.login__box { position: relative; z-index: 1; border-radius: 26px; box-shadow: 0 2px 4px rgba(120, 40, 70, .05), 0 24px 50px -22px rgba(120, 40, 70, .35); }
+.login__box h1 { font-size: 26px; }
+.login__box img { border-radius: 16px; }
+
+/* ---------- Hộp thoại, nhãn, khác ---------- */
+.modal__box, .modal .modal__box, .pop { border-radius: 22px; }
+.tag { border-radius: 999px; }
+
+/* ---------- Hiệu ứng vào trang ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .kpi { animation: rdAdIn .5s cubic-bezier(.2, .8, .2, 1) both; }
+  .kpis .kpi:nth-child(2) { animation-delay: .06s; }
+  .kpis .kpi:nth-child(3) { animation-delay: .12s; }
+  .kpis .kpi:nth-child(4) { animation-delay: .18s; }
+  .kpis .kpi:nth-child(n+5) { animation-delay: .24s; }
+  .login__box { animation: rdAdIn .6s cubic-bezier(.2, .8, .2, 1) both; }
+  .login::before { animation: rdAdBob 5s ease-in-out infinite; }
+  .login::after { animation: rdAdTw 3.2s ease-in-out infinite; }
+}
+@keyframes rdAdIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes rdAdBob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes rdAdTw { 0%, 100% { scale: 1; opacity: 1; } 50% { scale: .86; opacity: .75; } }
+@media (prefers-reduced-motion: reduce) {
+  .btn, .nav__i, .icobtn, .pg__b { transition: none; }
+  .btn:hover, .nav__i:hover, .pg__b:hover:not(:disabled) { transform: none; }
+}

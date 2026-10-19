@@ -1,0 +1,60 @@
+/* =====================================================================
+   "Chạm là vui" – phần nhìn cho js/rd-vui.js
+   Hạt tim / sao / chấm và bong bóng nói nằm trên một lớp cố định, không nhận chạm (pointer-events: none),
+   chỉ chuyển động bằng transform + opacity. Rê chuột (máy tính): sticker danh mục lắc nhẹ.
+   Giảm chuyển động: không có hạt, bong bóng hay lắc.
+   ===================================================================== */
+
+/* Lớp hiệu ứng (giống .rd-fx-layer của motion.css, khai lại để chạy cả khi trang không nạp motion.css) */
+.rdv-lop { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; overflow: hidden; contain: strict; }
+.rdv-lop * { pointer-events: none; }
+
+/* Hạt */
+.rdv-p { position: absolute; left: 0; top: 0; display: block; will-change: transform, opacity; opacity: 0; }
+.rdv-p svg { display: block; width: 100%; height: 100%; overflow: visible; fill: currentColor; stroke: #fff; stroke-width: 2.4; stroke-linejoin: round; paint-order: stroke; }
+/* viền trắng như sticker + bóng nhẹ để hạt vàng / xanh nhạt vẫn rõ trên nền kem */
+.rdv-p--tim, .rdv-p--sao { filter: drop-shadow(0 1px 1.5px rgba(150, 70, 100, .35)); }
+.rdv-p--cham { border-radius: 50%; background: currentColor; box-shadow: 0 0 0 1.5px #fff, 0 1px 2px rgba(150, 70, 100, .35); }
+
+/* Bong bóng nói */
+.rdv-noi {
+  position: absolute; left: 0; top: 0;
+  max-width: min(240px, calc(100vw - 32px)); padding: 7px 14px 8px;
+  border-radius: 18px; background: #fff; color: var(--rd-ink, #2B2533);
+  font-family: var(--font-head, 'Baloo 2', 'Be Vietnam Pro', sans-serif); font-size: 14px; font-weight: 700; line-height: 1.3;
+  text-align: center; white-space: normal; text-wrap: balance;
+  box-shadow: 0 0 0 2px #FDE3EA, 0 10px 22px -10px rgba(170, 80, 110, .45);
+  transform-origin: var(--rdv-duoi, 50%) 100%;
+  will-change: transform, opacity; opacity: 0;
+}
+.rdv-noi--tren { transform-origin: var(--rdv-duoi, 50%) 0; }
+.rdv-noi--trai { transform-origin: 0 var(--rdv-duoi-y, 50%); }
+.rdv-noi--phai { transform-origin: 100% var(--rdv-duoi-y, 50%); }
+/* Đuôi bo tròn chỉ về nhân vật */
+.rdv-noi--duoi::after, .rdv-noi--tren::after, .rdv-noi--trai::after, .rdv-noi--phai::after {
+  content: ''; position: absolute; left: var(--rdv-duoi, 50%); width: 12px; height: 12px; background: #fff;
+  translate: -50% 0; rotate: 45deg;
+}
+.rdv-noi--duoi::after { bottom: -5px; border-radius: 0 0 4px 0; box-shadow: 2px 2px 0 0 #FDE3EA; }
+.rdv-noi--tren::after { top: -5px; border-radius: 4px 0 0 0; box-shadow: -2px -2px 0 0 #FDE3EA; }
+.rdv-noi--trai::after { left: -5px; top: var(--rdv-duoi-y, 50%); translate: 0 -50%; border-radius: 0 0 0 4px; box-shadow: -2px 2px 0 0 #FDE3EA; }
+.rdv-noi--phai::after { left: auto; right: -5px; top: var(--rdv-duoi-y, 50%); translate: 0 -50%; border-radius: 0 4px 0 0; box-shadow: 2px -2px 0 0 #FDE3EA; }
+
+/* Rê chuột trên máy tính: sticker danh mục và bong bóng danh mục lắc nhẹ một lần.
+   Bỏ qua sticker đã có chuyển động riêng (trôi nhẹ, trong bong bóng danh mục, so sánh WHO, bản đồ cơ thể)
+   để không thay mất animation của chúng. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  img[src*="img/rd/stickers/"]:not(.mom__art-stk, [data-rd-float], [data-rd-bob], [data-rd-twinkle], .cat-bubble__disc *, .rd-ss *, .yh-body *):hover,
+  .cat-bubble:hover .cat-bubble__disc { animation: rdvLac .7s ease-in-out 1; animation-composition: add; }
+}
+@keyframes rdvLac {
+  0%, 100% { rotate: 0deg; }
+  20% { rotate: -6deg; }
+  45% { rotate: 5deg; }
+  70% { rotate: -2.5deg; }
+  85% { rotate: 1deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rdv-lop { display: none !important; }
+}

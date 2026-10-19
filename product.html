@@ -7,10 +7,17 @@
   <title>Sản phẩm – Hương Chất Kids</title>
   <meta name="description" content="Chi tiết sản phẩm, độ tuổi phù hợp, cách dùng và đánh giá thật từ Shopee. Mua nhanh không cần tài khoản, chuyên gia dinh dưỡng tư vấn miễn phí.">
   <!-- /ADMIN:SEO -->
+  <script src="js/seo.js?v=lc1" defer></script>
   <meta name="theme-color" content="#F0537A">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20261019c">
+  <link rel="stylesheet" href="css/rd/base.css?v=lc6">
+  <link rel="stylesheet" href="css/rd/motion.css?v=lc2">
+  <link rel="stylesheet" href="css/rd/y-shop.css?v=y2">
+  <link rel="stylesheet" href="css/rd/be.css?v=b1">
+  <link rel="stylesheet" href="css/rd/product.css?v=lc2">
+  <link rel="stylesheet" href="css/rd/vui.css?v=v1">
   <link rel="icon" type="image/png" sizes="96x96" href="img/logo-96.png"><link rel="apple-touch-icon" href="img/logo-192.png">
 </head>
 <body>
@@ -20,16 +27,20 @@
 <script src="js/data.js?v=20261017g"></script>
 <script src="js/le-hoi.js?v=20261017c" defer></script>
 <script src="js/qrcode.min.js"></script>
-<script src="js/app.js?v=20261019b"></script>
+<script src="js/app.js?v=20261020b"></script>
+<script src="js/rd-motion.js?v=lc3" defer></script>
+<script src="js/rd-y-shop.js?v=y3" defer></script>
+<script src="js/rd-be.js?v=b3" defer></script>
+<script src="js/rd-vui.js?v=v1" defer></script>
 <script src="js/chat.js?v=20261019c" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const { $, $$, fmt, pct, listPrice, param, esc, byId, brandOf, ageLabel, I, starRow, productImage, productCard, Cart, toast, deliveryEstimate, openQuickBuy, giftNote } = MC;
+  const { $, $$, fmt, pct, listPrice, param, esc, byId, brandOf, ageLabel, I, starRow, productImage, productCard, Cart, toast, deliveryEstimate, openQuickBuy, giftNote, rdIcon, rdAgeIcon } = MC;
   const p = byId(param('id'));
   /* Sản phẩm mới đăng mà trình duyệt còn giữ bản trang/dữ liệu cũ (GitHub Pages cho nhớ 10 phút)
      → tự tải lại 1 lần với địa chỉ mới để lấy bản mới nhất, không bắt khách bấm Ctrl+F5 */
   if (!p && param('id') && !param('r')) { location.replace(`${location.pathname}?id=${encodeURIComponent(param('id'))}&r=${Date.now()}`); return; }
-  if (!p) { $('#pdp').innerHTML = `<div class="empty card" style="margin:24px 0"><div class="emoji">🔍</div><h3>Không tìm thấy sản phẩm</h3><p>Sản phẩm có thể đã ngừng bán. Mẹ xem các sản phẩm khác nhé.</p><a class="btn btn--primary btn--lg mt-16" href="collections.html">Xem tất cả sản phẩm</a></div>`; return; }
+  if (!p) { $('#pdp').innerHTML = `<div class="empty card pdp-empty" style="margin:24px 0"><img class="rd-doodle rd-doodle--md rd-doodle--wave" src="img/rd/doodles/may-con-wow.svg" alt="" width="96" height="96"><h3>Không tìm thấy sản phẩm</h3><p>Sản phẩm có thể đã ngừng bán. Mẹ xem các sản phẩm khác nhé.</p><a class="btn btn--primary btn--lg mt-16" href="collections.html">Xem tất cả sản phẩm</a></div>`; return; }
   const b = brandOf(p); const d = pct(p); let qty = 1;
   // chọn sẵn phân loại còn hàng đầu tiên (phân loại hết hàng bị khoá)
   let variant = p.variants ? Math.max(0, p.variants.findIndex((v) => !v.oos)) : null;
@@ -48,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chips2 = () => [0, 1].map((k) => `<div class="pdp__opt"><label>${esc(p.chon2[k])}</label><div class="chips" data-tang="${k}" role="group" aria-label="${esc(p.chon2[k])}">${ds2(k).map((x) => { const on = tang(p.variants[variant], k) === x; return `<button type="button" class="chip ${on ? 'is-active' : ''}" data-gt="${esc(x)}" aria-pressed="${on}">${esc(x)}${k ? ` <small>· ${fmt((p.variants.find((v) => tang(v, 0) === tang(p.variants[variant], 0) && tang(v, 1) === x) || {}).price || 0)}</small>` : ''}</button>`; }).join('')}</div></div>`).join('');  // >12 mới dùng ô chọn; còn lại hiện nút bấm cho dễ chọn
   /* Chương trình mua theo combo (trường uuDai của combo): hiện ở trang combo và trang các sản phẩm lẻ trong combo */
   const comboUuDai = PRODUCTS.filter((c) => c.isCombo && c.uuDai && c.uuDai.length && (c.id === p.id || (c.items || []).includes(p.id)))
-    .map((c) => `<li class="li-gift li-combo">🎁 <b>${c.id === p.id ? 'Chương trình của combo' : `Mua theo ${esc(shortName(c))}`}</b><ul class="uudai">${c.uuDai.map((u) => `<li>✅ ${esc(u)}</li>`).join('')}</ul>${c.id === p.id ? '' : `<a class="btn btn--primary btn--sm mt-8" href="product.html?id=${encodeURIComponent(c.id)}">Xem combo & chọn số hộp ${I.arrowR}</a>`}</li>`).join('');
+    .map((c) => `<li class="li-gift li-combo">${rdIcon('gift', 22)} <b>${c.id === p.id ? 'Chương trình của combo' : `Mua theo ${esc(shortName(c))}`}</b><ul class="uudai">${c.uuDai.map((u) => `<li>${esc(u)}</li>`).join('')}</ul>${c.id === p.id ? '' : `<a class="btn btn--primary btn--sm mt-8" href="product.html?id=${encodeURIComponent(c.id)}">Xem combo & chọn số hộp ${I.arrowR}</a>`}</li>`).join('');
   const price = () => variant != null ? p.variants[variant].price : p.price;
   const oldPrice = () => listPrice(variant != null ? p.variants[variant].oldPrice : p.oldPrice, price()) || (variant != null ? p.variants[variant].giaGoc : p.giaGoc) || 0;
 
@@ -57,35 +68,70 @@ document.addEventListener('DOMContentLoaded', () => {
   const similar = PRODUCTS.filter((x) => x.id !== p.id && (x.cat === p.cat || x.needs.some((n) => p.needs.includes(n)))).sort((a, c) => c.sold - a.sold).slice(0, 5);
   const reviewsFor = SITE.showReviews ? REVIEWS.filter((r) => r.product === p.id) : [];
 
+  /* ---- Phần nhìn theme "Lớn lên cùng bé" (chỉ trình bày, không đổi tính năng) ---- */
+  const tone = (MC.RD_TONE || {})[p.cat] || 'blush';
+  const doodle = ({ sua: 'giot-sua', 'nuoc-ep': 'hop-nuoc-ep', vitamin: 'khuc-xuong', 'rong-bien': 'nam-com', 'do-an': 'nam-com', 'tang-can': 'nam-com', 'thuc-pham': 'mam-cay', 'hong-sam': 'mam-cay', 'cho-me': 'trai-tim' })[p.cat] || 'ngoi-sao';
+  /* Nhãn tuổi: đọc thông tin bé mẹ đã lưu ở công cụ Đo chỉ số (khoá hck_suckhoe, chỉ trên máy này) */
+  const kidBadge = (() => {
+    if (!p.ages.length) return '';
+    const doLink = `<a class="pdp__kid pdp__kid--do" href="index.html#do-chi-so" data-rd-do>${rdIcon('ruler', 28)}<span>Đo chỉ số để biết bé đang phát triển thế nào</span>${I.arrowR}</a>`;
+    const hs = MC.store.get('hck_suckhoe');
+    if (!hs || !/^\d{4}-\d{2}-\d{2}$/.test(hs.dob || '') || !Array.isArray(hs.log) || !hs.log.length) return doLink;
+    const [y, m, n] = hs.dob.split('-').map(Number); const nay = new Date();
+    let thang = (nay.getFullYear() - y) * 12 + nay.getMonth() - (m - 1); if (nay.getDate() < n) thang--;
+    if (!(thang >= 0 && thang <= 228)) return doLink;
+    const nhom = thang < 6 ? '0-6m' : thang < 12 ? '6-12m' : thang < 36 ? '1-3y' : thang < 72 ? '3-6y' : thang < 144 ? '6-12y' : '12-18y';
+    const tuoi = thang < 1 ? 'dưới 1 tháng' : thang < 24 ? `${thang} tháng` : `${Math.floor(thang / 12)} tuổi${thang % 12 ? ` ${thang % 12} tháng` : ''}`;
+    const ten = hs.name ? `bé ${esc(String(hs.name))}` : 'bé';
+    return p.ages.includes(nhom)
+      ? `<div class="pdp__kid pdp__kid--ok">${rdIcon('baby', 36, '', 'rd-sticker rd-sticker--thin')}<span>Phù hợp độ tuổi của <b>${ten}</b> <span class="nowrap">(${tuoi})</span></span></div>`
+      : `<a class="pdp__kid pdp__kid--khac" href="collections.html?age=${nhom}">${rdAgeIcon(nhom, 28)}<span>Món này dành cho bé ${MC.ageRange(p.ages)}. Xem món hợp tuổi ${ten} (${tuoi})</span>${I.arrowR}</a>`;
+  })();
+  const agesHtml = p.ages.length
+    ? `<div class="pdp__ages"><p class="pdp__ages-lbl">Phù hợp cho bé <b>${MC.ageRange(p.ages)}</b>${p.family ? ' và cả gia đình' : ''}</p><div class="pdp__agechips">${p.ages.map((a) => `<a class="rd-agechip" href="collections.html?age=${a}">${rdAgeIcon(a, 22)}${ageLabel(a)}</a>`).join('')}</div></div>`
+    : `<div class="pdp__ages"><p class="pdp__ages-lbl">Sản phẩm dành cho <b>${p.family ? 'cả gia đình' : 'mẹ / người lớn'}</b></p><div class="pdp__agechips"><span class="rd-agechip">${rdIcon(p.family ? 'hug' : 'mom-feeding', 22)}${p.family ? 'Cả gia đình' : 'Dành cho mẹ'}</span></div></div>`;
+  /* Lời nhắc pháp lý: giữ nguyên câu chữ, chỉ thay emoji bằng icon */
+  const ghiChu = p.cosmetic ? ['lotion', 'Sản phẩm chăm sóc dùng ngoài, không phải là thuốc và không thay thế thuốc chữa bệnh. Nên thử ở vùng da nhỏ trước, tránh vùng mắt và vết thương hở; ngưng dùng nếu da kích ứng.']
+    : p.formula ? ['heart-pink', 'Sữa mẹ là thức ăn tốt nhất cho sức khoẻ và sự phát triển toàn diện của trẻ nhỏ. Sản phẩm dinh dưỡng công thức chỉ dùng khi có chỉ định của bác sĩ hoặc mẹ không đủ sữa; pha đúng hướng dẫn trên hộp.']
+    : isTPCN ? ['stethoscope', 'Thực phẩm bảo vệ sức khoẻ, không phải là thuốc và không thay thế thuốc chữa bệnh. Đọc kỹ hướng dẫn và độ tuổi trên bao bì; chuyên gia dinh dưỡng sẽ gọi tư vấn liều dùng phù hợp với bé.' + (suaMe ? '<br>' + CAU_SUA_ME : '')]
+    : suaMe ? ['heart-pink', CAU_SUA_ME + ' Đọc kỹ hướng dẫn và độ tuổi trên bao bì trước khi dùng.']
+    : p.family && !p.ages.length ? ['heart-pink', 'Thực phẩm dùng cho cả gia đình. Bé nhỏ dùng lượng ít, quan sát phản ứng; người có bệnh lý nền hỏi ý kiến bác sĩ.']
+    : ['heart-pink', 'Thực phẩm bổ sung, không thay thế bữa ăn chính. Bé dưới 1 tuổi hoặc có tiền sử dị ứng nên hỏi ý kiến bác sĩ trước khi dùng.'];
+  const luuY = p.cosmetic ? ['lotion', 'Sản phẩm chăm sóc dùng ngoài, không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Hiệu quả tuỳ thuộc cơ địa từng người.']
+    : isTPCN ? ['stethoscope', 'Thực phẩm này không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Hiệu quả tuỳ thuộc cơ địa từng bé.' + (suaMe ? '<br>' + CAU_SUA_ME : '')]
+    : suaMe ? ['heart-pink', CAU_SUA_ME + ' Sản phẩm dinh dưỡng dùng bổ sung theo độ tuổi, không thay thế sữa mẹ; đọc kỹ hướng dẫn trên bao bì.']
+    : ['heart-pink', 'Sản phẩm là thực phẩm bổ sung cho bữa ăn, không thay thế chế độ ăn đa dạng. Bé dưới 1 tuổi hoặc có tiền sử dị ứng nên hỏi ý kiến bác sĩ trước khi dùng.'];
+
   $('#pdp').innerHTML = `
     <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span>›</span><a href="collections.html?cat=${p.cat}">${(CATEGORIES.find((c) => c.key === p.cat) || {}).label || 'Sản phẩm'}</a><span>›</span><span>${esc(p.short || p.name)}</span></nav>
     <div class="pdp">
       <div class="gallery">
-        <div class="gallery__main"><img id="mainImg" src="${productImage(p, 0)}" alt="${esc(shortName(p))}">${d >= 5 ? `<span class="badge badge--sale">-${d}%</span>` : ''}</div>
+        <div class="gallery__main" data-rd-tone="${tone}"><img id="mainImg" src="${productImage(p, 0)}" alt="${esc(shortName(p))}">${d >= 5 ? `<span class="badge badge--sale rd-tag">-${d}%</span>` : ''}</div>
+        <span class="gallery__doodle rd-doodle-swap" aria-hidden="true"><img class="rd-doodle rd-sticker" src="img/rd/doodles/${doodle}-vui.svg" alt="" width="64" height="64"><img class="rd-doodle rd-sticker" src="img/rd/doodles/${doodle}-wow.svg" alt="" width="64" height="64"></span>
         <div class="gallery__thumbs">${Array.from({ length: p.images && p.images.length ? Math.min(6, p.images.length) : 3 }, (_, i) => i).map((i) => `<button type="button" class="${i === 0 ? 'is-active' : ''}" data-thumb="${i}" aria-label="Ảnh ${i + 1}" aria-pressed="${i === 0}"><img src="${productImage(p, i)}" alt=""></button>`).join('')}</div>
       </div>
       <div class="pdp__info">
-        <a class="pdp__brand" href="collections.html?brand=${p.brand}">${esc(b.label)}${p.origin ? ` · Xuất xứ ${esc(p.origin)}` : ''}</a>
+        <a class="pdp__brand rd-tag" href="collections.html?brand=${p.brand}">${esc(b.label)}${p.origin ? ` · Xuất xứ ${esc(p.origin)}` : ''}</a>
         <h1 class="pdp__title">${esc(shortName(p))}</h1>
         ${p.short && p.short !== p.name ? `<p class="pdp__fullname">${esc(p.name)}</p>` : ''}
         <div class="pdp__meta">${p.reviews > 0 ? `<span class="star">${I.star}${p.rating.toFixed(1)}</span><a href="#reviews" class="text-primary" data-goto-reviews>${p.reviews} đánh giá trên Shopee</a>` : `<a href="#reviews" class="text-muted" data-goto-reviews>Chưa có đánh giá</a>`}${p.sold > 0 ? `<span>Đã bán ${p.sold.toLocaleString('vi-VN')}</span>` : ''}<span>${p.stock > 0 ? `<span class="text-teal fw-600">● Còn hàng</span>` : `<span class="text-red fw-600">● Tạm hết</span>`}</span></div>
-        ${p.ages.length ? `<div class="pdp__ages">${I.user} Phù hợp cho bé <b>${MC.ageRange(p.ages)}</b>${p.family ? ' và cả gia đình' : ''} · ${p.ages.map((a) => `<a href="collections.html?age=${a}">${ageLabel(a)}</a>`).join(', ')}</div>` : `<div class="pdp__ages">${I.user} Sản phẩm dành cho <b>${p.family ? 'cả gia đình' : 'mẹ / người lớn'}</b></div>`}
+        ${agesHtml}${kidBadge}
         ${MC.gioVangNhan(p)}<div class="pdp__price"><b id="pPrice">${fmt(price())}</b>${oldPrice() ? `<s id="pOld">${fmt(oldPrice())}</s><span class="badge badge--sale">Tiết kiệm ${fmt(oldPrice() - price())}</span>` : ''}</div>
         ${p.variants && p.chon2 ? `<div id="variants2">${chips2()}</div>` : p.variants ? (manyVariants ? `<div class="pdp__opt"><label for="variantSel">Phân loại</label><select class="input" id="variantSel">${p.variants.map((v, i) => `<option value="${i}" ${v.oos ? 'disabled' : ''}>${esc(v.label)} – ${fmt(v.price)}${v.oos ? ' (tạm hết)' : v.oldPrice ? ` (giá gốc ${fmt(v.oldPrice)})` : ''}</option>`).join('')}</select></div>` : `<div class="pdp__opt"><label>Phân loại</label><div class="chips" id="variants" role="group" aria-label="Phân loại">${p.variants.map((v, i) => `<button type="button" class="chip ${i === variant ? 'is-active' : ''} ${v.oos ? 'chip--oos' : ''}" data-variant="${i}" aria-pressed="${i === variant}" ${v.oos ? 'disabled' : ''}>${esc(v.label)} <small>· ${v.oos ? 'tạm hết' : fmt(v.price)}</small></button>`).join('')}</div></div>`) : ''}
         <div class="pdp__opt"><label>Số lượng</label><div class="flex items-center gap-12"><div class="qty" role="group" aria-label="Số lượng"><button type="button" id="qMinus" aria-label="Giảm số lượng">−</button><input type="number" id="qInput" value="1" min="1" max="99" inputmode="numeric" aria-label="Số lượng"><button type="button" id="qPlus" aria-label="Tăng số lượng">+</button></div><span class="fs-13 text-teal fw-600" id="qHint">Mua từ 2 giảm thêm 3%</span></div></div>
         <div class="pdp__buy">
-          <button class="btn btn--primary btn--lg btn--block btn--stack" type="button" id="btnBuy"><span>${I.zap} MUA NGAY · <span id="buyTotal">${fmt(price())}</span></span><small>Chỉ cần SĐT & địa chỉ · Kiểm tra hàng trước khi thanh toán</small></button>
-          <div class="row"><button class="btn btn--outline btn--lg" type="button" id="btnAdd">${I.cart}Thêm vào giỏ</button><a class="btn btn--zalo btn--lg" href="${SITE.zalo}" target="_blank" rel="noopener" data-zalo-copy="${esc(shortName(p))}">Đặt qua Zalo</a></div>
-          <div class="row"><button class="btn btn--ghost btn--wrap" type="button" data-callback="${p.id}">${I.headset}Chuyên gia dinh dưỡng gọi tư vấn</button>${p.shopeeUrl ? MC.shopeeBtn(p.shopeeUrl) : `<a class="btn btn--ghost" href="tel:${SITE.hotlineTel}">${I.phoneCall}Gọi đặt hàng</a>`}</div>
+          <button class="btn btn--primary btn--lg btn--block btn--stack" type="button" id="btnBuy"><span>${I.zap}Mua ngay · <span id="buyTotal">${fmt(price())}</span></span><small>Chỉ cần SĐT & địa chỉ · Kiểm tra hàng trước khi thanh toán</small></button>
+          <button class="btn btn--outline btn--lg btn--block" type="button" id="btnAdd">${I.cart}Thêm vào giỏ</button>
+          <div class="pdp__links"><a class="pdp__link" href="${SITE.zalo}" target="_blank" rel="noopener" data-zalo-copy="${esc(shortName(p))}">${rdIcon('chat', 22)}Đặt qua Zalo</a><button class="pdp__link" type="button" data-callback="${p.id}">${rdIcon('expert', 22)}Chuyên gia gọi tư vấn</button>${p.shopeeUrl ? MC.shopeeBtn(p.shopeeUrl, 'pdp__link') : `<a class="pdp__link" href="tel:${SITE.hotlineTel}">${rdIcon('phone', 22)}Gọi đặt hàng</a>`}</div>
         </div>
-        <div class="pdp__note">${p.cosmetic ? '💄 Sản phẩm chăm sóc dùng ngoài, không phải là thuốc và không thay thế thuốc chữa bệnh. Nên thử ở vùng da nhỏ trước, tránh vùng mắt và vết thương hở; ngưng dùng nếu da kích ứng.' : p.formula ? '💛 Sữa mẹ là thức ăn tốt nhất cho sức khoẻ và sự phát triển toàn diện của trẻ nhỏ. Sản phẩm dinh dưỡng công thức chỉ dùng khi có chỉ định của bác sĩ hoặc mẹ không đủ sữa; pha đúng hướng dẫn trên hộp.' : isTPCN ? '⚠️ Thực phẩm bảo vệ sức khoẻ, không phải là thuốc và không thay thế thuốc chữa bệnh. Đọc kỹ hướng dẫn và độ tuổi trên bao bì; chuyên gia dinh dưỡng sẽ gọi tư vấn liều dùng phù hợp với bé.' + (suaMe ? '<br>💛 ' + CAU_SUA_ME : '') : suaMe ? '💛 ' + CAU_SUA_ME + ' Đọc kỹ hướng dẫn và độ tuổi trên bao bì trước khi dùng.' : p.family && !p.ages.length ? '💛 Thực phẩm dùng cho cả gia đình. Bé nhỏ dùng lượng ít, quan sát phản ứng; người có bệnh lý nền hỏi ý kiến bác sĩ.' : '💛 Thực phẩm bổ sung, không thay thế bữa ăn chính. Bé dưới 1 tuổi hoặc có tiền sử dị ứng nên hỏi ý kiến bác sĩ trước khi dùng.'}</div>
-        <div class="pdp__offers"><h4>${I.gift}Ưu đãi khi mua hôm nay</h4><ul>${comboUuDai}${giftNote(p) ? `<li class="li-gift">🎁 ${giftNote(p)}</li>` : ''}<li>Mua từ 2 sản phẩm giảm thêm 3% – tự động áp dụng</li><li>Freeship đơn từ ${fmt(SITE.freeshipFrom)} · Nội thành Hà Nội giao trong ngày</li>${p.cosmetic ? '<li>Tư vấn cách dùng miễn phí qua Zalo sau khi đặt</li>' : isTPCN ? '<li>Chuyên gia dinh dưỡng gọi hướng dẫn liều dùng miễn phí sau khi đặt</li>' : '<li>Đổi mới miễn phí nếu hàng móp, rách, cận date khi nhận</li>'}</ul></div>
-        <div class="pdp__trust"><span>${I.shield}Chính hãng, tem phụ tiếng Việt</span><span>${I.refresh}Đổi trả miễn phí 7 ngày</span><span>${I.file}Hoá đơn VAT theo yêu cầu</span><span>${I.package}Đóng gói chống sốc</span></div>
+        <div class="pdp__note">${rdIcon(ghiChu[0], 24)}<p>${ghiChu[1]}</p></div>
+        <div class="pdp__offers"><h4>${rdIcon('gift', 30, '', 'rd-sticker rd-sticker--thin')}Ưu đãi khi mua hôm nay</h4><ul>${comboUuDai}${giftNote(p) ? `<li class="li-gift">${rdIcon('gift', 22)} <span>${giftNote(p)}</span></li>` : ''}<li>Mua từ 2 sản phẩm giảm thêm 3% – tự động áp dụng</li><li>Freeship đơn từ ${fmt(SITE.freeshipFrom)} · Nội thành Hà Nội giao trong ngày</li>${p.cosmetic ? '<li>Tư vấn cách dùng miễn phí qua Zalo sau khi đặt</li>' : isTPCN ? '<li>Chuyên gia dinh dưỡng gọi hướng dẫn liều dùng miễn phí sau khi đặt</li>' : '<li>Đổi mới miễn phí nếu hàng móp, rách, cận date khi nhận</li>'}</ul></div>
+        <div class="pdp__trust"><span>${rdIcon('check', 36)}<span><b>Chính hãng</b><small>Tem phụ tiếng Việt, hoá đơn VAT theo yêu cầu</small></span></span><span>${rdIcon('truck', 36)}<span><b>Giao nhanh</b><small>Hà Nội trong ngày, tỉnh khác 1–3 ngày</small></span></span><span>${rdIcon('package', 36)}<span><b>Đổi trả 7 ngày</b><small>Miễn phí, đóng gói chống sốc</small></span></span><span>${rdIcon('expert', 36)}<span><b>Chuyên gia tư vấn</b><small>Miễn phí, theo độ tuổi của bé</small></span></span></div>
         <div class="pdp__delivery"><span>${I.truck}Giao dự kiến: <b>${deliveryEstimate()}</b> (Hà Nội trong ngày · tỉnh khác 1–3 ngày)</span><span>${I.mapPin}Giao tới: <span id="addrHint">${esc((MC.Customer.get() || {}).address ? MC.addrShow(MC.Customer.get().address) : 'Hà Nội, TP.HCM & 61 tỉnh thành')}</span></span><span>${I.phoneCall}Hotline / Zalo: <a class="fw-700 text-primary" href="tel:${SITE.hotlineTel}">${SITE.hotline}</a></span></div>
       </div>
     </div>
 
-    ${related.length ? `<div class="bundle"><h3>🎁 Mẹ thường mua kèm – thêm cả bộ vào giỏ chỉ 1 chạm</h3><p class="fs-13 text-muted mb-12">Gợi ý theo độ tuổi của bé. Bỏ tick sản phẩm không cần.</p><div class="bundle__items">
+    ${related.length ? `<div class="bundle" data-rd-reveal="up"><div class="bundle__head"><span class="rd-wiggle-host bundle__ico" aria-hidden="true"><img class="rd-emo rd-sticker" src="img/rd/icons/gift.webp" alt="" width="52" height="52" loading="lazy"></span><div><h3>Mẹ thường mua kèm</h3><p class="fs-13 text-muted">Gợi ý theo độ tuổi của bé, thêm cả bộ vào giỏ chỉ 1 chạm. Bỏ tick món không cần.</p></div></div><div class="bundle__items">
       <label class="bundle__item"><input type="checkbox" checked disabled><img src="${productThumb(p)}" alt=""><div><div class="n">${esc(shortName(p))} <span class="text-muted">(sản phẩm này)</span></div><div class="p" id="bundleMainPrice">${fmt(price())}</div></div></label>
       ${related.map((r) => `<label class="bundle__item"><input type="checkbox" checked data-bundle="${r.id}" data-price="${r.price}"><img src="${productThumb(r)}" alt=""><div><div class="n">${esc(shortName(r))}</div><div class="p">${fmt(r.price)}</div></div></label>`).join('')}
     </div><div class="bundle__foot"><div class="tot">Tổng cộng: <b id="bundleTotal"></b><span class="save" id="bundleSave"></span></div><button class="btn btn--primary" type="button" id="bundleAdd">${I.cart}Thêm <span id="bundleCount"></span> sản phẩm vào giỏ</button></div></div>` : ''}
@@ -94,20 +140,20 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="tabs" id="pdpTabs" role="tablist"><button class="tab is-active" data-panel="desc" role="tab" aria-selected="true">Mô tả sản phẩm</button><button class="tab" data-panel="usage" role="tab" aria-selected="false">Thành phần & Cách dùng</button><button class="tab" data-panel="reviews" role="tab" aria-selected="false">Đánh giá${p.reviews ? ` (${p.reviews})` : ''}</button><button class="tab" data-panel="policy" role="tab" aria-selected="false">Chính sách</button></div>
       <div class="pdp__panel is-active" id="panel-desc" role="tabpanel"><p>${esc(p.desc)}</p><h3>Điểm nổi bật</h3><ul class="list">${(p.highlights || []).map((h) => `<li>${esc(h)}</li>`).join('')}</ul>${p.isCombo ? `<h3>Bộ sản phẩm gồm</h3><div class="grid grid--3">${p.items.map((id) => productCard(byId(id))).join('')}</div>` : ''}
         <h3>Thông tin sản phẩm</h3><div class="spec"><div>Thương hiệu</div><div>${esc(b.label)}</div><div>Xuất xứ</div><div>${esc(p.origin)}</div>${p.importer ? `<div>Nhà nhập khẩu</div><div>${esc(p.importer)}</div>` : ''}${p.congBo ? `<div>Số công bố</div><div>${esc(p.congBo)}</div>` : ''}<div>Quy cách</div><div>${esc(p.weight)}</div><div>Độ tuổi</div><div>${p.ages.length ? p.ages.map(ageLabel).join(', ') + (p.family ? ' và cả gia đình' : '') : (p.family ? 'Cả gia đình' : 'Người lớn / mẹ')}</div><div>Nhu cầu</div><div>${p.needs.map((n) => (NEEDS.find((x) => x.key === n) || {}).label).filter(Boolean).join(', ')}</div><div>Hạn sử dụng</div><div>Còn tối thiểu 6 tháng kể từ ngày giao</div>${p.shopeeId ? `<div>Mã sản phẩm</div><div>${esc(p.shopeeId)}</div>` : ''}</div>
-        ${p.cosmetic ? '<div class="disclaimer">💄 Sản phẩm chăm sóc dùng ngoài, không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Hiệu quả tuỳ thuộc cơ địa từng người.</div>' : isTPCN ? '<div class="disclaimer">⚠️ Thực phẩm này không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Hiệu quả tuỳ thuộc cơ địa từng bé.' + (suaMe ? '<br>💛 ' + CAU_SUA_ME : '') + '</div>' : suaMe ? '<div class="disclaimer">💛 ' + CAU_SUA_ME + ' Sản phẩm dinh dưỡng dùng bổ sung theo độ tuổi, không thay thế sữa mẹ; đọc kỹ hướng dẫn trên bao bì.</div>' : '<div class="disclaimer">💛 Sản phẩm là thực phẩm bổ sung cho bữa ăn, không thay thế chế độ ăn đa dạng. Bé dưới 1 tuổi hoặc có tiền sử dị ứng nên hỏi ý kiến bác sĩ trước khi dùng.</div>'}</div>
+        <div class="disclaimer">${rdIcon(luuY[0], 24)}<p>${luuY[1]}</p></div></div>
       <div class="pdp__panel" id="panel-usage" role="tabpanel"><h3>Hướng dẫn sử dụng</h3><p>${esc(p.usage)}</p><h3>Bảo quản</h3><p>Nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp. Sau khi mở, đậy kín và dùng theo thời hạn ghi trên bao bì (nước ép, hồng sâm đã mở gói nên dùng ngay).</p><h3>Lưu ý</h3><ul class="list"><li>Đọc kỹ hướng dẫn sử dụng trước khi dùng.</li><li>Không dùng cho bé dị ứng với bất kỳ thành phần nào của sản phẩm.</li><li>Tham khảo ý kiến chuyên gia dinh dưỡng Hương Chất Kids để được tư vấn liều dùng phù hợp với cân nặng, độ tuổi của bé.</li></ul></div>
-      <div class="pdp__panel" id="panel-reviews" role="tabpanel">${p.reviews === 0 ? `<div class="empty"><div class="emoji">💬</div><h3>Chưa có đánh giá cho sản phẩm này</h3><p>Mẹ đã dùng sản phẩm? Hãy chia sẻ cảm nhận qua Zalo để nhận mã giảm 20K cho đơn sau.</p><a class="btn btn--zalo mt-16" href="${SITE.zalo}" target="_blank" rel="noopener">Gửi đánh giá qua Zalo</a></div>` : `<div class="rating-summary"><div class="big"><b>${p.rating.toFixed(1)}</b><div class="stars">${starRow(p.rating)}</div><small>${p.reviews} đánh giá</small></div><div class="flex flex-col gap-8" style="justify-content:center"><p style="margin:0">Điểm trung bình <b>${p.rating.toFixed(2)}/5</b> từ <b>${p.reviews.toLocaleString('vi-VN')}</b> lượt đánh giá${p.sold ? ` · đã bán <b>${p.sold.toLocaleString('vi-VN')}</b>` : ''} trên gian hàng Shopee chính thức của ${SITE.name}.</p>${p.shopeeUrl ? `<a class="btn btn--shopee" style="align-self:flex-start" href="${p.shopeeUrl}" target="_blank" rel="noopener">Xem ${p.reviews} đánh giá trên Shopee ↗</a>` : ''}</div></div>
+      <div class="pdp__panel" id="panel-reviews" role="tabpanel">${p.reviews === 0 ? `<div class="empty pdp-empty"><img class="rd-doodle rd-doodle--wave" src="img/rd/doodles/ngoi-sao-vui.svg" alt="" width="72" height="72" loading="lazy"><h3>Chưa có đánh giá cho sản phẩm này</h3><p>Mẹ đã dùng sản phẩm? Hãy chia sẻ cảm nhận qua Zalo để nhận mã giảm 20K cho đơn sau.</p><a class="btn btn--zalo mt-16" href="${SITE.zalo}" target="_blank" rel="noopener">Gửi đánh giá qua Zalo</a></div>` : `<div class="rating-summary"><div class="big"><b>${p.rating.toFixed(1)}</b><div class="stars">${starRow(p.rating)}</div><small>${p.reviews} đánh giá</small></div><div class="flex flex-col gap-8" style="justify-content:center"><p style="margin:0">Điểm trung bình <b>${p.rating.toFixed(2)}/5</b> từ <b>${p.reviews.toLocaleString('vi-VN')}</b> lượt đánh giá${p.sold ? ` · đã bán <b>${p.sold.toLocaleString('vi-VN')}</b>` : ''} trên gian hàng Shopee chính thức của ${SITE.name}.</p>${p.shopeeUrl ? `<a class="btn btn--shopee" style="align-self:flex-start" href="${p.shopeeUrl}" target="_blank" rel="noopener">Xem ${p.reviews} đánh giá trên Shopee ↗</a>` : ''}</div></div>
         ${reviewsFor.length ? `<div class="review-list">${reviewsFor.map((r) => `<div class="review-item"><div class="top"><span class="stars">${starRow(r.stars)}</span><b>${esc(r.name)}</b><small>· ${esc(r.child)} · ${esc(r.city || '')}</small></div><p>${esc(r.text)}</p></div>`).join('')}</div>` : ''}`}</div>
       <div class="pdp__panel" id="panel-policy" role="tabpanel"><h3>Giao hàng</h3><p>Nội thành Hà Nội: giao trong ngày (đơn đặt trước 16h), có hoả tốc 2–4h phụ thu ${fmt(SITE.expressFee)}. TP.HCM và các tỉnh khác: 1–3 ngày làm việc qua đơn vị vận chuyển. Miễn phí vận chuyển cho đơn từ ${fmt(SITE.freeshipFrom)}. Chi tiết: <a class="text-primary fw-600" href="policy.html?p=giao-hang">Chính sách giao hàng</a>.</p><h3>Đổi trả</h3><p>Đổi trả miễn phí trong 7 ngày nếu sản phẩm lỗi do nhà sản xuất, sai hàng, hư hỏng do vận chuyển. Được kiểm tra hàng trước khi thanh toán.</p><h3>Cam kết chính hãng</h3><p>Sản phẩm nhập khẩu chính ngạch, có tem phụ tiếng Việt, hoá đơn VAT xuất theo yêu cầu. Hoàn tiền 100% và chịu toàn bộ chi phí nếu mẹ phát hiện hàng không chính hãng. Xem <a class="text-primary fw-600" href="policy.html?p=chinh-hang">cam kết chính hãng</a>.</p></div>
     </div>
 
-    <section class="section"><div class="section-head"><div><h2>Sản phẩm tương tự</h2></div><a class="link" href="collections.html?cat=${p.cat}">Xem thêm ${I.arrowR}</a></div><div class="row-scroll">${similar.map((x) => productCard(x)).join('')}</div></section>`;
+    <section class="section pdp__similar"><div class="section-head" data-rd-reveal="up"><div><h2>Mẹ cũng hay xem</h2><p>Món cùng loại hoặc cùng nhu cầu với sản phẩm này</p></div><a class="link" href="collections.html?cat=${p.cat}">Xem thêm ${I.arrowR}</a></div><div class="row-scroll">${similar.map((x) => productCard(x)).join('')}</div></section>`;
 
-  $('#stickyBuy').innerHTML = `<button class="btn btn--outline btn--icon" type="button" id="stickyAdd" aria-label="Thêm vào giỏ">${I.cart}</button><button class="btn btn--primary" type="button" id="stickyBuyBtn">${I.zap}Mua ngay · <span id="stickyPrice">${fmt(price())}</span></button>`;
+  $('#stickyBuy').innerHTML = `<img class="sticky-buy__thumb" src="${productThumb(p)}" alt="" width="44" height="44"><button class="btn btn--outline btn--icon" type="button" id="stickyAdd" aria-label="Thêm vào giỏ">${I.cart}</button><button class="btn btn--primary" type="button" id="stickyBuyBtn">${I.zap}Mua ngay · <span id="stickyPrice">${fmt(price())}</span></button>`;
 
   /* Interactions */
   const lineTotal = () => Math.round(price() * qty * (qty >= 2 ? 1 - MC.MULTI_RATE : 1));
-  const refreshPrice = () => { $('#pPrice').textContent = fmt(price()); const o = $('#pOld'); if (o) o.textContent = oldPrice() ? fmt(oldPrice()) : ''; $('#stickyPrice').textContent = fmt(lineTotal()); $('#buyTotal').textContent = fmt(lineTotal()); $('#qHint').textContent = qty >= 2 ? '🎉 Đã giảm thêm 3%' : 'Mua từ 2 giảm thêm 3%'; const bm = $('#bundleMainPrice'); if (bm) bm.textContent = fmt(price()); bundleCalc(); };
+  const refreshPrice = () => { $('#pPrice').textContent = fmt(price()); const o = $('#pOld'); if (o) o.textContent = oldPrice() ? fmt(oldPrice()) : ''; $('#stickyPrice').textContent = fmt(lineTotal()); $('#buyTotal').textContent = fmt(lineTotal()); $('#qHint').textContent = qty >= 2 ? 'Đã giảm thêm 3% rồi nè' : 'Mua từ 2 giảm thêm 3%'; const bm = $('#bundleMainPrice'); if (bm) bm.textContent = fmt(price()); bundleCalc(); };
   $('#variants')?.addEventListener('click', (e) => { const c = e.target.closest('[data-variant]'); if (!c) return; variant = Number(c.dataset.variant); $$('#variants .chip').forEach((x) => { x.classList.toggle('is-active', x === c); x.setAttribute('aria-pressed', x === c); }); refreshPrice(); });
   $('#variants2')?.addEventListener('click', (e) => { const c = e.target.closest('[data-gt]'); if (!c) return; const k = Number(c.closest('[data-tang]').dataset.tang); const cur = p.variants[variant]; const a = k ? tang(cur, 0) : c.dataset.gt, b = k ? c.dataset.gt : tang(cur, 1); let i = tim2(a, b); if (i < 0) i = p.variants.findIndex((v) => tang(v, k) === c.dataset.gt && !v.oos); if (i < 0) return; variant = i; $('#variants2').innerHTML = chips2(); refreshPrice(); });
   $('#variantSel')?.addEventListener('change', (e) => { variant = Number(e.target.value); refreshPrice(); });
@@ -117,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const buy = () => openQuickBuy(p.id, { qty, variant: variant ?? undefined });
   const add = () => { Cart.add(p.id, qty, variant); toast('Đã thêm vào giỏ hàng', { action: { label: 'Thanh toán ngay', onClick: () => location.href = 'checkout.html' } }); if (window.innerWidth >= 992) MC.openCart(); };
   $('#btnBuy').addEventListener('click', buy); $('#stickyBuyBtn').addEventListener('click', buy); $('#btnAdd').addEventListener('click', add); $('#stickyAdd').addEventListener('click', add);
-  $$('[data-thumb]').forEach((t) => t.addEventListener('click', () => { $$('[data-thumb]').forEach((x) => { x.classList.toggle('is-active', x === t); x.setAttribute('aria-pressed', x === t); }); $('#mainImg').src = productImage(p, Number(t.dataset.thumb)); }));
+  $$('[data-thumb]').forEach((t) => t.addEventListener('click', () => { $$('[data-thumb]').forEach((x) => { x.classList.toggle('is-active', x === t); x.setAttribute('aria-pressed', x === t); }); $('#mainImg').src = productImage(p, Number(t.dataset.thumb)); const dd = $('.gallery__doodle'); if (dd) { dd.classList.add('is-wow'); clearTimeout(dd._t); dd._t = setTimeout(() => dd.classList.remove('is-wow'), 900); } }));
   $('#pdpTabs').addEventListener('click', (e) => { const t = e.target.closest('.tab'); if (!t) return; $$('#pdpTabs .tab').forEach((x) => { x.classList.toggle('is-active', x === t); x.setAttribute('aria-selected', x === t); }); $$('.pdp__panel').forEach((x) => x.classList.toggle('is-active', x.id === 'panel-' + t.dataset.panel)); });
   $$('[data-goto-reviews]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); $('[data-panel=reviews]').click(); $('.pdp__tabs').scrollIntoView({ behavior: 'smooth' }); }));
   if (location.hash === '#reviews') $('[data-panel=reviews]').click();

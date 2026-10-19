@@ -7,17 +7,35 @@
   <title>Sản phẩm – Hương Chất Kids</title>
   <meta name="description" content="Tất cả sản phẩm dinh dưỡng Hàn Quốc cho bé tại Hương Chất Kids: nước ép Lotte, hồng sâm ChuChu, D3K2, váng sữa canxi, gạc hươu Sumo, rong biển. Lọc theo độ tuổi và nhu cầu của bé.">
   <!-- /ADMIN:SEO -->
+  <meta property="og:type" content="website"><meta property="og:site_name" content="Hương Chất Kids"><meta property="og:image" content="https://huongchatkids.vn/img/logo.png"><meta property="og:locale" content="vi_VN">
+  <script src="js/seo.js?v=lc1" defer></script>
   <meta name="theme-color" content="#F0537A">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20261019c">
+  <link rel="stylesheet" href="css/rd/base.css?v=lc6">
+  <link rel="stylesheet" href="css/rd/motion.css?v=lc2">
+  <link rel="stylesheet" href="css/rd/y-shop.css?v=y2">
+  <link rel="stylesheet" href="css/rd/be.css?v=b1">
+  <link rel="stylesheet" href="css/rd/shop.css?v=lc7">
+  <link rel="stylesheet" href="css/rd/vui.css?v=v1">
   <link rel="icon" type="image/png" sizes="96x96" href="img/logo-96.png"><link rel="apple-touch-icon" href="img/logo-192.png">
 </head>
 <body>
 <main id="app"><div class="container">
   <nav class="breadcrumb" id="crumb"></nav>
-  <h1 class="page-title" id="title">Tất cả sản phẩm</h1>
-  <p class="text-muted fs-14 mb-16" id="subtitle"></p>
+  <header class="col-hero">
+    <div class="col-hero__txt">
+      <p class="col-hero__eyebrow"><span class="col-hero__ico" id="colIcon" aria-hidden="true"><img class="rd-emo rd-sticker rd-sticker--thin" src="img/rd/icons/teddy.webp" alt="" width="30" height="30"></span><span class="rd-hand">Chọn món hợp tuổi bé</span></p>
+      <h1 class="page-title" id="title">Tất cả sản phẩm</h1>
+      <p class="text-muted fs-14 mb-16" id="subtitle"></p>
+    </div>
+    <span class="col-hero__art" aria-hidden="true">
+      <img class="rd-emo rd-sticker col-hero__giraffe" src="img/rd/icons/giraffe.webp" alt="" width="88" height="88">
+      <img class="rd-emo col-hero__star" src="img/rd/icons/star.webp" alt="" width="28" height="28" data-rd-twinkle>
+      <span class="rd-doodle-swap col-hero__doodle"><img class="rd-doodle rd-doodle--sm" src="img/rd/doodles/mam-cay-vui.svg" alt="" width="48" height="48"><img class="rd-doodle rd-doodle--sm" src="img/rd/doodles/mam-cay-wow.svg" alt="" width="48" height="48"></span>
+    </span>
+  </header>
   <div class="chips chips--scroll mb-16" id="ageChips"></div>
 
   <div class="collection">
@@ -35,7 +53,7 @@
       <div class="toolbar">
         <span class="count" id="count"></span>
         <div class="flex gap-8 items-center">
-          <button class="btn btn--ghost btn--sm filter-btn" type="button" id="openFilters"><span data-icon="filter"></span>Lọc</button>
+          <button class="btn btn--ghost btn--sm filter-btn" type="button" id="openFilters"><span data-icon="filter"></span>Lọc<span class="filter-btn__n" id="filterN" hidden></span></button>
           <select class="input" id="sort" aria-label="Sắp xếp">
             <option value="best">Bán chạy nhất</option>
             <option value="price-asc">Giá tăng dần</option>
@@ -56,11 +74,15 @@
 <script src="js/data.js?v=20261017g"></script>
 <script src="js/le-hoi.js?v=20261017c" defer></script>
 <script src="js/qrcode.min.js"></script>
-<script src="js/app.js?v=20261019b"></script>
+<script src="js/app.js?v=20261020b"></script>
+<script src="js/rd-motion.js?v=lc3" defer></script>
+<script src="js/rd-y-shop.js?v=y3" defer></script>
+<script src="js/rd-be.js?v=b3" defer></script>
+<script src="js/rd-vui.js?v=v1" defer></script>
 <script src="js/chat.js?v=20261019c" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const { $, $$, fmt, I, productCard, brandOf, ageLabel, esc } = MC;
+  const { $, $$, fmt, I, productCard, brandOf, ageLabel, esc, rdIcon, rdAgeIcon, rdEmoji, RD_NEED_ICON } = MC;
   $$('[data-icon]').forEach((el) => { el.innerHTML = I[el.dataset.icon]; });
   $('#closeFilters').innerHTML = I.close;
   const PER = 12;
@@ -102,8 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function titleText() {
     if (S.q) return ganDung ? `Gợi ý gần đúng cho "${S.q}"` : `Kết quả cho "${S.q}"`;
-    if (S.km) return '🏷️ Sản phẩm đang khuyến mãi';
-    if (S.tag) return S.tag === 'Combo' ? 'Combo tiết kiệm' : (S.tag === 'Sản phẩm hot' ? '🔥 Sản phẩm hot của shop' : S.tag);
+    if (S.km) return 'Sản phẩm đang khuyến mãi';
+    if (S.tag) return S.tag === 'Combo' ? 'Combo tiết kiệm' : (S.tag === 'Sản phẩm hot' ? 'Sản phẩm hot của shop' : S.tag);
     if (S.cat.length === 1) return (CATEGORIES.find((c) => c.key === S.cat[0]) || {}).label || 'Sản phẩm';
     if (S.need.length === 1) return (NEEDS.find((n) => n.key === S.need[0]) || {}).label || 'Sản phẩm';
     if (S.brand.length === 1) return 'Thương hiệu ' + brandOf({ brand: S.brand[0] }).label;
@@ -111,10 +133,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'Tất cả sản phẩm';
   }
 
+  /* Icon sticker cạnh tiêu đề: theo bộ lọc đang xem (chỉ là trang trí) */
+  function heroIcon() {
+    if (S.q) return 'search'; if (S.km) return 'ticket'; if (S.tag === 'Combo') return 'gift'; if (S.tag) return 'fire';
+    if (S.cat.length === 1) { const c = CATEGORIES.find((x) => x.key === S.cat[0]); const stk = c && (MC.RD_STICKER || {})[String(c.icon || '').trim()]; if (stk) return 'stk:' + stk; const k = c && { 'cho-me': 'mom-feeding', vitamin: 'pill', sua: 'milk', 'hong-sam': 'herb', 'tang-can': 'honey', 'nuoc-ep': 'juice', 'rong-bien': 'rice-ball', 'thuc-pham': 'apple', 'do-an': 'rice' }[c.key]; if (k) return k; }
+    if (S.need.length === 1 && RD_NEED_ICON[S.need[0]]) return RD_NEED_ICON[S.need[0]];
+    if (S.age.length === 1) return ({ '0-6m': 'baby', '6-12m': 'bowl', '1-3y': 'teddy', '3-6y': 'puzzle', '6-12y': 'backpack', '12-18y': 'basketball' })[S.age[0]] || 'teddy';
+    return 'teddy';
+  }
+
   function renderFilters() {
     const cb = (name, key, label, count) => `<label><input type="checkbox" name="${name}" value="${key}" ${S[name].includes(key) ? 'checked' : ''}>${label}<span class="count">${count}</span></label>`;
-    $('#fAge').innerHTML = AGES.map((a) => cb('age', a.key, `${a.emoji} ${a.label}`, PRODUCTS.filter((p) => p.ages.includes(a.key)).length)).join('');
-    $('#fCat').innerHTML = CATEGORIES.map((c) => cb('cat', c.key, c.label, PRODUCTS.filter((p) => p.cat === c.key).length)).join('');
+    $('#fAge').innerHTML = AGES.map((a) => cb('age', a.key, `${rdAgeIcon(a.key, 22) || esc(a.emoji)}${a.label}`, PRODUCTS.filter((p) => p.ages.includes(a.key)).length)).join('');
+    $('#fCat').innerHTML = CATEGORIES.map((c) => cb('cat', c.key, `${rdEmoji(c.icon, 22)}${c.label}`, PRODUCTS.filter((p) => p.cat === c.key).length)).join('');
     $('#fNeed').innerHTML = NEEDS.map((n) => cb('need', n.key, n.label, PRODUCTS.filter((p) => p.needs.includes(n.key)).length)).join('');
     $('#fBrand').innerHTML = BRANDS.filter((b) => PRODUCTS.some((p) => p.brand === b.key)).map((b) => cb('brand', b.key, b.label, PRODUCTS.filter((p) => p.brand === b.key).length)).join('');
     $('#fPrice').innerHTML = PRICE_RANGES.map((r) => cb('price', r.key, r.label, PRODUCTS.filter((p) => p.price >= r.min && p.price < r.max).length)).join('');
@@ -126,24 +157,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const add = (k, v, label) => chips.push(`<button class="chip chip--sm is-active" type="button" data-rm="${k}" data-val="${esc(v)}">${esc(label)} <span class="chip__x">×</span></button>`);
     S.age.forEach((a) => add('age', a, ageLabel(a))); S.cat.forEach((c) => add('cat', c, (CATEGORIES.find((x) => x.key === c) || {}).label)); S.need.forEach((n) => add('need', n, (NEEDS.find((x) => x.key === n) || {}).label)); S.brand.forEach((b) => add('brand', b, brandOf({ brand: b }).label)); S.price.forEach((p) => add('price', p, PRICE_RANGES.find((x) => x.key === p).label));
     if (S.km) add('km', '1', 'Đang khuyến mãi'); if (S.q) add('q', S.q, `"${esc(S.q)}"`); if (S.tag) add('tag', S.tag, S.tag);
+    const nLoc = S.age.length + S.cat.length + S.need.length + S.brand.length + S.price.length; const fn = $('#filterN'); if (fn) { fn.textContent = nLoc || ''; fn.hidden = !nLoc; }
     $('#activeFilters').innerHTML = chips.length ? chips.join('') + `<button class="chip chip--sm" type="button" id="clearAllChips">Xoá tất cả</button>` : '';
   }
 
   function render() {
     const list = filtered(); const pages = Math.max(1, Math.ceil(list.length / PER)); S.page = Math.min(S.page, pages);
     const t = titleText(); $('#title').textContent = t; document.title = t + ' – ' + SITE.name;
-    $('#subtitle').textContent = S.km ? (window.GIO_VANG || []).filter((g) => !g.tat).map((g) => `⏰ ${g.ten} ${g.tu}–${g.den} mỗi ngày giảm ${g.giam}%${MC.gioVangChay(g) ? ' (đang diễn ra)' : ''}`).concat(['🎁 Mua kèm quà tặng', '💰 Combo tiết kiệm']).join(' · ') : S.age.length === 1 ? `Chuyên gia dinh dưỡng đã chọn lọc sản phẩm phù hợp cho bé ${ageLabel(S.age[0])}` : 'Hàng chính hãng · Freeship từ 3 triệu · Đổi trả 7 ngày';
+    $('#subtitle').textContent = S.km ? (window.GIO_VANG || []).filter((g) => !g.tat).map((g) => `${g.ten} ${g.tu}–${g.den} mỗi ngày giảm ${g.giam}%${MC.gioVangChay(g) ? ' (đang diễn ra)' : ''}`).concat(['Mua kèm quà tặng', 'Combo tiết kiệm']).join(' · ') : S.age.length === 1 ? `Chuyên gia dinh dưỡng đã chọn lọc sản phẩm phù hợp cho bé ${ageLabel(S.age[0])}` : 'Hàng chính hãng · Freeship từ 3 triệu · Đổi trả 7 ngày';
     $('#crumb').innerHTML = `<a href="index.html">Trang chủ</a><span>›</span><a href="collections.html">Sản phẩm</a>${t !== 'Tất cả sản phẩm' ? `<span>›</span><span>${esc(t)}</span>` : ''}`;
-    $('#ageChips').innerHTML = `<a class="chip ${!S.age.length ? 'is-active' : ''}" href="#" data-age="">Tất cả tuổi</a>` + AGES.map((a) => `<a class="chip ${S.age.length === 1 && S.age[0] === a.key ? 'is-active' : ''}" href="#" data-age="${a.key}">${a.emoji} ${a.label}</a>`).join('');
+    $('#ageChips').innerHTML = `<a class="chip ${!S.age.length ? 'is-active' : ''}" href="#" data-age="">Tất cả tuổi</a>` + AGES.map((a) => `<a class="chip ${S.age.length === 1 && S.age[0] === a.key ? 'is-active' : ''}" href="#" data-age="${a.key}">${rdAgeIcon(a.key, 22) || esc(a.emoji)}${a.label}</a>`).join('');
+    { const hi = heroIcon(); $('#colIcon').innerHTML = hi.startsWith('stk:') ? MC.rdSticker(hi.slice(4), 40, '', 'col-hero__stk') : rdIcon(hi, 30, '', 'rd-sticker rd-sticker--thin'); }
     $('#count').textContent = `${list.length} sản phẩm`;
     renderActive();
     const babyAge = S.age.length === 1 && ['0-6m', '6-12m'].includes(S.age[0]);
-    $('#callout').innerHTML = babyAge ? `<div class="callout"><span class="emoji">👩‍⚕️</span><div><b>Bé dưới 1 tuổi: mẹ nên hỏi chuyên gia dinh dưỡng trước khi dùng thực phẩm bổ sung</b>Ở tuổi này sữa mẹ/sữa công thức là chính; thường chỉ cần vitamin D3 và một số sản phẩm ghi rõ "từ 6 tháng". Chuyên gia dinh dưỡng ${SITE.name} tư vấn miễn phí.</div><button class="btn btn--teal btn--sm" type="button" data-callback>${I.headset}Gọi lại cho tôi</button></div>` : (list.length && list.length <= 2 ? `<div class="callout"><span class="emoji">💬</span><div><b>Chưa thấy sản phẩm mẹ cần?</b>Nhắn Zalo hoặc để lại số, chuyên gia dinh dưỡng sẽ gợi ý sản phẩm phù hợp với bé.</div><a class="btn btn--zalo btn--sm" href="${SITE.zalo}" target="_blank" rel="noopener">Chat Zalo</a></div>` : '');
+    $('#callout').innerHTML = babyAge ? `<div class="callout"><span class="emoji">${rdIcon('expert', 40, '', 'rd-sticker rd-sticker--thin')}</span><div><b>Bé dưới 1 tuổi: mẹ nên hỏi chuyên gia dinh dưỡng trước khi dùng thực phẩm bổ sung</b>Ở tuổi này sữa mẹ/sữa công thức là chính; thường chỉ cần vitamin D3 và một số sản phẩm ghi rõ "từ 6 tháng". Chuyên gia dinh dưỡng ${SITE.name} tư vấn miễn phí.</div><button class="btn btn--teal btn--sm" type="button" data-callback>${I.headset}Gọi lại cho tôi</button></div>` : (list.length && list.length <= 2 ? `<div class="callout callout--soft"><span class="emoji">${rdIcon('chat', 40, '', 'rd-sticker rd-sticker--thin')}</span><div><b>Chưa thấy sản phẩm mẹ cần?</b>Nhắn Zalo hoặc để lại số, chuyên gia dinh dưỡng sẽ gợi ý sản phẩm phù hợp với bé.</div><a class="btn btn--zalo btn--sm" href="${SITE.zalo}" target="_blank" rel="noopener">Chat Zalo</a></div>` : '');
     const slice = list.slice((S.page - 1) * PER, S.page * PER);
     // Ở mục "Tất cả sản phẩm": hết phần hàng cho bé thì chèn một vạch ngăn trước phần hàng cho mẹ
     const sepAt = S.sort === 'best' && !S.cat.length && !S.q ? slice.findIndex((p) => MC.isForMom(p)) : -1;
-    const sep = `<div class="grid__sep"><b>💖 Dành cho mẹ</b><span>Mỹ phẩm &amp; chăm sóc sức khoẻ cho mẹ</span></div>`;
-    $('#grid').innerHTML = slice.length ? slice.map((p, i) => (i === sepAt ? sep : '') + productCard(p)).join('') : `<div class="empty" style="grid-column:1/-1"><div class="emoji">🔍</div><h3>Chưa tìm thấy sản phẩm phù hợp</h3><p>Mẹ thử bỏ bớt bộ lọc, hoặc để chuyên gia dinh dưỡng tư vấn trực tiếp nhé.</p><div class="flex gap-8 mt-16" style="justify-content:center;flex-wrap:wrap"><button class="btn btn--ghost" type="button" id="emptyReset">Xoá bộ lọc</button><button class="btn btn--teal" type="button" data-callback>${I.headset}Chuyên gia dinh dưỡng gọi lại</button></div></div>`;
+    const sep = `<div class="grid__sep"><b>${rdIcon('mom-feeding', 32, '', 'rd-sticker rd-sticker--thin')}Dành cho mẹ</b><span>Mỹ phẩm &amp; chăm sóc sức khoẻ cho mẹ</span></div>`;
+    $('#grid').innerHTML = slice.length ? slice.map((p, i) => (i === sepAt ? sep : '') + productCard(p)).join('') : `<div class="empty empty--rd" style="grid-column:1/-1"><span class="rd-doodle-swap empty__doodle" aria-hidden="true"><img class="rd-doodle rd-doodle--md rd-doodle--wave" src="img/rd/doodles/giot-sua-vui.svg" alt="" width="96" height="96"><img class="rd-doodle rd-doodle--md" src="img/rd/doodles/giot-sua-wow.svg" alt="" width="96" height="96"></span><h3>Chưa tìm thấy sản phẩm phù hợp</h3><p>Mẹ thử bỏ bớt bộ lọc, hoặc để chuyên gia dinh dưỡng tư vấn trực tiếp nhé.</p><div class="flex gap-8 mt-16" style="justify-content:center;flex-wrap:wrap"><button class="btn btn--ghost" type="button" id="emptyReset">Xoá bộ lọc</button><button class="btn btn--teal" type="button" data-callback>${I.headset}Chuyên gia dinh dưỡng gọi lại</button></div></div>`;
     $('#pagination').innerHTML = pages > 1 ? `<button type="button" data-page="${S.page - 1}" ${S.page === 1 ? 'disabled' : ''}>‹</button>` + Array.from({ length: pages }, (_, i) => `<button type="button" class="${i + 1 === S.page ? 'is-active' : ''}" data-page="${i + 1}">${i + 1}</button>`).join('') + `<button type="button" data-page="${S.page + 1}" ${S.page === pages ? 'disabled' : ''}>›</button>` : '';
     syncUrl();
   }
