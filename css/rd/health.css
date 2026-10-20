@@ -1,0 +1,330 @@
+/* =====================================================================
+   "Lớn lên cùng bé" – khối sức khỏe trang chủ (section#sucKhoe, js/suc-khoe.js)
+   Hero đo chỉ số, "Bé nhà mình đang cần gì?", form đo (#hkForm trong #callbackModal), các khối kết quả.
+   Nạp sau css/rd/motion.css. Chỉ đổi phần nhìn: mọi id, class JS dùng và data-* giữ nguyên.
+   Thiết kế: clients/huong-chat-kids/design/lon-len-cung-be.md (mục 7.1, 8.1–8.2, 11).
+   ===================================================================== */
+
+/* ---------- 0. Khung khối ---------- */
+.hk-section { padding-top: 12px; padding-bottom: 24px; }
+/* .section của style.css đặt 64px trên/dưới: hero cách thanh tab quá xa, cách banner tới ~104px. Thu lại cho liền mạch. */
+section#sucKhoe.hk-section { padding-top: 20px; padding-bottom: 8px; }
+@media (min-width: 900px) { section#sucKhoe.hk-section { padding-top: 32px; padding-bottom: 12px; } }
+/* Giữ chỗ trước khi JS vẽ hero để trang không nhảy (CLS) */
+#hkCard:empty { min-height: 620px; }
+@media (min-width: 900px) { #hkCard:empty { min-height: 460px; } }
+
+/* ---------- 1. Hero "Lớn lên cùng bé" ---------- */
+.hk-hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: grid; gap: 4px 32px; align-items: center;
+  padding: 18px 18px 0; border-radius: var(--rd-r-xl, 28px);
+  background:
+    radial-gradient(120% 70% at 100% 100%, var(--rd-blush, #FEF0F3) 0 40%, transparent 70%),
+    linear-gradient(170deg, var(--rd-sky, #EAF3FF) 0%, #F5F1FF 55%, var(--rd-cream, #FFFAF5) 100%);
+  box-shadow: var(--rd-shadow-sm);
+}
+@media (min-width: 900px) {
+  .hk-hero { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); padding: 40px 0 0 48px; min-height: 440px; }
+  .hk-hero__txt { padding-bottom: 40px; }
+}
+.hk-hero__txt { position: relative; z-index: 2; min-width: 0; }
+
+/* H1 thật của trang, hiện thành dòng chữ nhỏ phía trên */
+.hk-hero__eyebrow:empty { display: none; }
+.hk-hero__h1 {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0;
+  font: 600 14px/1.4 var(--font-body, 'Be Vietnam Pro', sans-serif); letter-spacing: 0; color: var(--rd-ink-2, #574F61);
+  text-wrap: balance;
+}
+.hk-hero__h1::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--primary, #F0537A); box-shadow: 0 0 0 4px rgba(240, 83, 122, .15); }
+
+.hk-hero__big {
+  margin: 6px 0 0; font-family: var(--font-head); font-weight: 800; letter-spacing: -.02em;
+  font-size: clamp(40px, 4.6vw + 22px, 72px); line-height: 1; color: var(--rd-ink, #2B2533); text-wrap: balance;
+}
+.hk-hero__big span { color: var(--rd-pink-text, #C84766); white-space: nowrap; }
+.hk-hero__big.rd-squiggle::after { width: 96px; height: 12px; margin-top: 8px; }
+.hk-hero__big--hi { font-size: clamp(30px, 3vw + 20px, 52px); line-height: 1.08; }
+.hk-hero__big--hi span { white-space: normal; }
+.hk-hero__sub { margin: 12px 0 0; max-width: 44ch; font-size: 16px; line-height: 1.55; color: var(--rd-ink-2, #574F61); }
+.hk-hero__sub b { color: var(--rd-ink, #2B2533); }
+.hk-hero .hk-pills { margin-top: 12px; }
+.hk-hero .hk-pill { font-size: 13px; padding: 5px 12px; }
+
+.hk-hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin-top: 18px; }
+.hk-hero__main { position: relative; display: inline-flex; }
+.hk-hero__main .btn { min-height: 56px; padding: 0 28px 0 20px; font-size: 17px; gap: 10px; }
+.hk-hero__main .btn img.rd-emo { width: 30px; height: 30px; filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1px #fff); }
+.hk-hero__free { position: absolute; z-index: 1; right: -14px; top: -15px; --rd-tilt: 7deg; font-size: 16px; pointer-events: none; }
+.hk-hero__shop {
+  display: inline-flex; align-items: center; gap: 6px; min-height: var(--rd-tap, 44px);
+  font-weight: 700; font-size: 15px; color: var(--rd-pink-text, #C84766); text-decoration: none;
+}
+.hk-hero__shop svg { width: 18px; height: 18px; transition: transform .2s var(--rd-spring); }
+.hk-hero__shop:hover { text-decoration: underline; text-underline-offset: 4px; }
+.hk-hero__shop:hover svg { transform: translateX(3px); }
+.hk-hero__cta--saved .btn { flex: 0 1 auto; }
+/* Kết quả tạm (chưa lưu): "Lưu thông tin bé" là việc chính (nền nút hành động), "Thu gọn/Xem kết quả" lùi xuống nút viền.
+   Tránh hai nút đặc khác màu (hồng + xanh ngọc) đứng cạnh nhau. Không đổi data-* hay thứ tự trong HTML. */
+.hk-hero__cta--saved { gap: 10px 12px; }
+.hk-hero__cta--saved > [data-hk-luu] { order: -1; background: var(--rd-cta, #CA4666); color: #fff; min-height: 52px; padding: 0 28px; font-size: 16px; box-shadow: 0 8px 18px -6px rgba(202, 70, 102, .55); }
+.hk-hero__cta--saved > [data-hk-luu]:hover { background: var(--rd-cta-hover, #B63F5D); }
+.hk-hero__cta--saved:has(> [data-hk-luu]) > [data-hk-xem] {
+  background: #fff; color: var(--rd-pink-text, #C84766); border: 2px solid var(--rd-cta, #CA4666);
+  box-shadow: none; min-height: var(--rd-tap, 44px); padding: 0 20px; font-size: 15px;
+}
+.hk-hero__cta--saved:has(> [data-hk-luu]) > [data-hk-xem]:hover { background: var(--rd-blush, #FEF0F3); }
+.hk-hero__cta--saved > [data-hk-mo], .hk-hero__cta--saved > [data-hk-ve] { order: 2; }
+/* Điện thoại: nút chính rộng hết hàng, các nút phụ chia đôi một hàng, không còn ba nút lệch độ rộng */
+@media (max-width: 599px) {
+  .hk-hero__cta--saved { display: grid; grid-template-columns: 1fr 1fr; }
+  .hk-hero__cta--saved > .btn { width: 100%; min-width: 0; padding-left: 8px; padding-right: 8px; white-space: nowrap; line-height: 1.2; }
+  /* Hai nút phụ nằm chung hàng (~150px mỗi nút): chữ 14px, bỏ icon thước để không xuống dòng */
+  .hk-hero__cta--saved:has(> [data-hk-luu]) > [data-hk-xem], .hk-hero__cta--saved:has(> [data-hk-luu]) > [data-hk-mo] { font-size: 14px; gap: 0; padding: 0 8px; }
+  .hk-hero__cta--saved:has(> [data-hk-luu]) > [data-hk-mo] img.rd-emo { display: none; }
+  .hk-hero__cta--saved > [data-hk-luu], .hk-hero__cta--saved > [data-hk-xem], .hk-hero__cta--saved > [data-hk-ve] { grid-column: 1 / -1; }
+  .hk-hero__cta--saved:has(> [data-hk-luu]) > [data-hk-xem] { grid-column: auto; order: 1; }
+  .hk-hero__cta--saved:has(> [data-hk-luu]) > [data-hk-ve] { grid-column: 1 / -1; order: 3; }
+  .hk-hero__cta--saved:not(:has(> [data-hk-luu])) > [data-hk-xem] { order: 0; }
+  .hk-hero__cta--saved:not(:has(> [data-hk-luu])) > [data-hk-mo] { grid-column: auto; }
+  .hk-hero__cta--saved:not(:has(> [data-hk-luu])) > [data-hk-mo]:last-child { grid-column: 1 / -1; }
+}
+.hk-hero__cta--saved .btn img.rd-emo { width: 24px; height: 24px; }
+
+.hk-hero__trust { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.hk-hero__trust li {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px 4px 6px;
+  border-radius: var(--rd-r-pill, 999px); background: rgba(255, 255, 255, .85);
+  font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--rd-ink-2, #574F61);
+  box-shadow: 0 0 0 1px rgba(241, 228, 234, .9);
+}
+.hk-hero__trust img.rd-emo { width: 24px; height: 24px; }
+
+/* Minh hoạ: thước dán tường + bạn thú xếp chồng + bé lớn lên */
+.hk-hero__art { position: relative; z-index: 1; height: 214px; margin: 6px -18px 0; }
+@media (min-width: 900px) { .hk-hero__art { align-self: end; height: 400px; margin: 0; } }
+.hk-hero__art img { display: block; max-width: none; }
+.hk-hero__blob { --rd-blob: rgba(255, 255, 255, .7); left: 10%; right: 16%; top: 14%; bottom: -10%; }
+.hk-hero__cloud, .hk-hero__twk, .hk-hero__rainbow { position: absolute; z-index: 0; pointer-events: none; }
+.hk-hero__cloud > span, .hk-hero__twk > span { display: block; }
+.hk-hero__cloud--1 { top: 2%; left: 52%; }
+.hk-hero__cloud--1 img { width: 56px; height: auto; }
+.hk-hero__cloud--2 { top: 40%; left: 50%; opacity: .9; }
+.hk-hero__cloud--2 img { width: 40px; height: auto; }
+@media (max-width: 899px) { .hk-hero__cloud--2 { display: none; } }
+.hk-hero__twk--1 { top: 10%; right: 30%; }
+.hk-hero__twk--2 { top: 46%; left: 54%; }
+.hk-hero__twk img { width: 20px; height: auto; }
+.hk-hero__rainbow { top: 4%; left: 18%; opacity: .85; }
+.hk-hero__rainbow img { width: 52px; height: auto; }
+@media (min-width: 900px) {
+  .hk-hero__cloud--1 img { width: 84px; } .hk-hero__cloud--2 img { width: 60px; }
+  .hk-hero__twk img { width: 28px; } .hk-hero__rainbow img { width: 76px; }
+  /* Bong bóng "Ví dụ" nằm ở 30%–75% phía trên: dời cầu vồng, mây, sao ra khỏi chỗ bị che */
+  .hk-hero__rainbow { top: 0; left: 1%; }
+  .hk-hero__cloud--1 { top: -6%; left: 80%; }
+  .hk-hero__twk--1 { top: 30%; right: auto; left: 30%; }
+}
+
+/* Sân khấu bé lớn lên (rd-motion.js dựng bên trong) */
+.hk-hero__grow.rd-grow { position: absolute; z-index: 2; left: 4px; bottom: 0; width: 262px; max-width: none; margin: 0; }
+@media (min-width: 900px) { .hk-hero__grow.rd-grow { left: 0; width: min(460px, 78%); } }
+.hk-hero__grow .rd-grow__deco { display: none; }
+.hk-hero__grow .rd-grow__floor { left: -30%; right: -60%; bottom: -24%; height: 40%; background: color-mix(in srgb, var(--rd-mint, #E6F5F4) 85%, #fff); }
+.hk-hero__grow .rd-grow__ruler {
+  left: 5%; width: 14%; top: 4%; bottom: 11%; border-width: 3px; border-radius: 12px;
+  background: linear-gradient(0deg, #FFE3A1 0%, #FFD0DC 34%, #E3D8FF 66%, #D3E8FF 100%);
+}
+/* Bé trai: đổi nhân vật bé chập chững và bé lớn của sân khấu sang bé trai (trình duyệt không hỗ trợ thì vẫn là bé gái) */
+.hk-hero__art--boy .rd-grow__k--child { content: url("../../img/rd/kids/chap-chung-trai.webp"); }
+.hk-hero__art--boy .rd-grow__k--girl { content: url("../../img/rd/kids/be-trai.webp"); }
+
+/* Các bạn thú xếp chồng (hươu cao cổ cao nhất) */
+.hk-hero__stack { position: absolute; z-index: 3; right: 12px; bottom: 8px; display: flex; flex-direction: column; align-items: center; --hk-ani: 44px; }
+@media (min-width: 900px) { .hk-hero__stack { right: 28px; bottom: 18px; --hk-ani: 76px; } }
+.hk-hero__ani { display: block; line-height: 0; }
+.hk-hero__ani + .hk-hero__ani { margin-top: calc(var(--hk-ani) * -.2); }
+.hk-hero__ani img { width: var(--hk-ani); height: auto; }
+.hk-hero__ani--giraffe img { width: calc(var(--hk-ani) * 1.3); --rd-tilt: 4deg; }
+.hk-hero__ani--elephant img { --rd-tilt: -4deg; }
+.hk-hero__ani--bear img { width: calc(var(--hk-ani) * .92); --rd-tilt: 3deg; }
+.hk-hero__ani--bunny img { width: calc(var(--hk-ani) * .84); --rd-tilt: -3deg; }
+.hk-hero__ani--chick img { width: calc(var(--hk-ani) * .7); --rd-tilt: 2deg; }
+
+/* Bong bóng "Ví dụ" / bé của mẹ */
+.hk-hero__say {
+  position: absolute; z-index: 5; left: 24%; top: 4px; max-width: 190px;
+  display: grid; gap: 2px; padding: 10px 12px 9px; border-radius: 16px; background: #fff;
+  box-shadow: var(--rd-shadow-md); font-size: 13px; line-height: 1.3; color: var(--rd-ink, #2B2533);
+}
+.hk-hero__say::after { content: ''; position: absolute; left: 46%; bottom: -6px; width: 14px; height: 14px; background: #fff; border-radius: 3px; transform: rotate(45deg); }
+.hk-hero__say > .rd-sticker-text { position: absolute; left: -10px; top: -14px; font-size: 15px; --rd-tilt: -6deg; }
+.hk-hero__say > img.rd-emo { position: absolute; left: -14px; top: -16px; width: 32px; height: 32px; }
+.hk-hero__say b { font-weight: 700; font-size: 14px; }
+.hk-hero__ok { justify-self: start; padding: 2px 9px; border-radius: 999px; background: var(--tone-bg, var(--rd-mint)); color: var(--tone-ink, var(--rd-teal-text)); font-size: 12px; font-weight: 700; }
+@media (min-width: 900px) {
+  .hk-hero__say { left: 30%; top: 6%; max-width: 230px; padding: 12px 16px 11px; font-size: 14px; }
+  .hk-hero__say b { font-size: 16px; }
+  .hk-hero__ok { font-size: 13px; }
+}
+
+/* Khi bé bắt đầu lớn (suc-khoe.js gắn .is-played lúc sân khấu lộ đủ): các bạn thú bật lên từ dưới,
+   bong bóng hiện sau khi bé lớn xong. Trạng thái chờ chỉ có khi html.rd-motion (không JS / giảm chuyển động: hiện đủ). */
+html.rd-motion .hk-hero__art:not(.is-played) .hk-hero__ani,
+html.rd-motion .hk-hero__art:not(.is-played) .hk-hero__say { opacity: 0; }
+html.rd-motion .hk-hero__art.is-played .hk-hero__ani { animation: hk-pop .55s var(--rd-spring) backwards; animation-delay: calc(var(--i, 0) * 110ms); }
+html.rd-motion .hk-hero__art.is-played .hk-hero__say { animation: hk-say .5s var(--rd-spring) 1.35s backwards; transform-origin: 40% 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .hk-hero__free { animation: hk-free .5s var(--rd-spring) .6s backwards; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hk-hero__art .hk-hero__ani, .hk-hero__art .hk-hero__say { opacity: 1 !important; animation: none !important; }
+}
+
+/* Điện thoại: chữ → nút chính → minh hoạ (~210px) → chip tin cậy, để nút chính nằm trong màn đầu 390×844 */
+@media (max-width: 899px) {
+  .hk-hero { gap: 0; }
+  .hk-hero__txt { display: contents; }
+  .hk-hero__eyebrow, .hk-hero__big, .hk-hero__sub, .hk-hero .hk-pills, .hk-hero__cta { order: 1; position: relative; z-index: 2; }
+  .hk-hero__art { order: 2; }
+  .hk-hero__trust { order: 3; position: relative; z-index: 2; margin: 0 -18px; padding: 12px 18px 16px; background: rgba(255, 255, 255, .55); }
+}
+@keyframes hk-pop { from { opacity: 0; transform: translateY(14px) scale(.55); } to { opacity: 1; transform: none; } }
+@keyframes hk-say { from { opacity: 0; transform: translateY(8px) scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes hk-free { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+
+/* ---------- 2. "Bé nhà mình đang cần gì?" ---------- */
+.hk-need { margin-top: 28px; padding: 22px 16px 20px; border-radius: var(--rd-r-xl, 28px); background: var(--rd-mint, #E6F5F4); }
+@media (min-width: 900px) { .hk-need { margin-top: 36px; padding: 32px 40px; } }
+.hk-need__head { margin-bottom: 14px; }
+.hk-need__head p { margin: 6px 0 0; max-width: 60ch; color: var(--rd-ink-2, #574F61); }
+.hk-need__body { display: grid; gap: 14px; }
+@media (min-width: 900px) { .hk-need__body { grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 36px; align-items: center; } }
+.hk-need__stage.rd-grow { max-width: 420px; box-shadow: var(--rd-shadow-sm); }
+@media (max-width: 899px) { .hk-need__stage.rd-grow { aspect-ratio: 16 / 10; max-width: 100%; } }
+.hk-need__side { min-width: 0; }
+/* Chip: mobile cuộn ngang 2 hàng, desktop xuống dòng */
+.hk-need__chips {
+  display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); gap: 8px;
+  overflow-x: auto; scroll-snap-type: x proximity; overscroll-behavior-x: contain;
+  margin: 0 -16px; padding: 4px 16px 8px; scroll-padding-inline: 16px; scrollbar-width: none;
+}
+.hk-need__chips::-webkit-scrollbar { display: none; }
+@media (min-width: 900px) { .hk-need__chips { display: flex; flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; gap: 10px; } }
+.chip.hk-need__chip {
+  justify-content: flex-start; gap: 8px; min-height: 48px; padding: 6px 16px 6px 8px;
+  white-space: nowrap; scroll-snap-align: start; font-size: 15px; background: #fff; cursor: pointer;
+}
+.chip.hk-need__chip img.rd-emo { width: 30px; height: 30px; margin: 0; }
+.chip.hk-need__chip.rd-on { background: var(--rd-blush, #FEF0F3); border-color: var(--primary, #F0537A); color: var(--rd-pink-text, #C84766); box-shadow: inset 0 0 0 1px var(--primary, #F0537A); }
+.hk-need__go.btn { margin-top: 14px; width: 100%; white-space: normal; text-align: left; line-height: 1.3; padding: 8px 22px; }
+.hk-need__go b { color: var(--rd-ink, #2B2533); font-weight: 800; }
+.hk-need__go svg { width: 18px; height: 18px; flex: none; }
+@media (min-width: 900px) { .hk-need__go.btn { width: auto; margin-top: 20px; } }
+
+/* ---------- 3. Form đo (#hkForm trong #callbackModal dùng chung) ---------- */
+.hk-form__head h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; }
+.hk-form__head h3 img.rd-emo { width: 32px; height: 32px; }
+.hk-form { gap: 16px; }
+.hk-form__hi { display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 18px; background: var(--rd-sky, #EAF3FF); }
+.hk-form__hi p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--rd-ink-2, #574F61); }
+.hk-form .field { display: grid; gap: 6px; align-content: start; }
+.hk-form .cn-o.input { min-height: var(--rd-tap-main, 48px); font-size: 16px; border-radius: var(--rd-r-input, 14px); }
+.hk-form .field label, .hk-sex legend { font-size: 14px; font-weight: 600; color: var(--rd-ink-2, #574F61); }
+.hk-sex .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hk-sex .chip { min-width: 0; min-height: 56px; gap: 8px; font-size: 16px; justify-content: center; }
+.hk-sex .chip img.rd-emo { width: 32px; height: 32px; margin: 0; }
+.hk-sex .chip:has(input:checked) { background: var(--rd-blush, #FEF0F3); border-color: var(--primary, #F0537A); color: var(--rd-pink-text, #C84766); box-shadow: inset 0 0 0 1px var(--primary, #F0537A); }
+.hk-sex .chip:has(input:focus-visible) { outline: 3px solid var(--rd-teal-text, #12827A); outline-offset: 3px; }
+.hk-form__row { gap: 12px; }
+.hk-help { font-size: 13px; color: var(--rd-muted, #6E6678); }
+.hk-luu { border: 0; border-radius: 16px; background: var(--rd-mint, #E6F5F4); padding: 12px 14px; }
+.hk-luu input { width: 22px; height: 22px; accent-color: var(--rd-teal-text, #12827A); }
+.hk-luu small, .hk-privacy { font-size: 13px; color: var(--rd-muted, #6E6678); }
+.hk-privacy svg { color: var(--rd-teal-text, #12827A); }
+
+/* ---------- 4. Kết quả ---------- */
+.hk-result { margin-top: 18px; padding: 20px 16px 22px; border: 0; border-radius: var(--rd-r-xl, 28px); background: #fff; box-shadow: var(--rd-shadow-md); }
+@media (min-width: 768px) { .hk-result { padding: 30px 32px 32px; } }
+.hk-res__head { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 12px; }
+.hk-res__doodle { grid-row: span 2; }
+.hk-res__head h3 { font-size: clamp(22px, 1.4vw + 16px, 28px); line-height: 1.2; }
+.hk-res__head p { font-size: 14px; color: var(--rd-muted, #6E6678); }
+.hk-verdict { border-radius: 16px; padding: 14px 16px; font-size: 15px; line-height: 1.55; }
+
+.hk-metric { border: 1.5px solid var(--rd-line, #F1E4EA); border-radius: var(--rd-r-card, 20px); background: var(--rd-cream, #FFFAF5); }
+.hk-metric__top > span { font-size: 14px; }
+.hk-metric__val b { font-size: 34px; font-variant-numeric: tabular-nums; }
+.hk-metric__val small { font-size: 13px; }
+.hk-scale { height: 12px; }
+.hk-scale i { width: 22px; height: 22px; border: 4px solid var(--rd-ink, #2B2533); }
+.hk-scale__lbl span { font-size: 12px; }
+.hk-metric__ref { font-size: 13px; }
+.hk-pill { font-size: 13px; }
+.hk-note { font-size: 13px; }
+
+.hk-block { margin-top: 34px; }
+.hk-block__head { margin-bottom: 14px; }
+.hk-block__head h3 { display: flex; align-items: center; gap: 10px; font-size: clamp(19px, .8vw + 15px, 22px); line-height: 1.25; }
+.hk-block__head h3 img.rd-emo { width: 34px; height: 34px; }
+.hk-block__head p { font-size: 14px; color: var(--rd-muted, #6E6678); }
+.hk-block__head .chips .chip { min-height: 44px; }
+
+.hk-eval__tong { border-radius: 16px; }
+.hk-eval__ds li { border-radius: 16px; border-left-width: 5px; }
+.hk-eval__ds p, .hk-eval__da { font-size: 15px; }
+.hk-eval__da { border-radius: 16px; background: var(--rd-mint, #E6F5F4); }
+.hk-eval__da b { color: var(--rd-teal-text, #12827A); }
+.hk-advice p { border-radius: 16px; background: var(--rd-blush, #FEF0F3); font-size: 15px; }
+
+.hk-chart__body { padding: 12px; border-radius: var(--rd-r-card, 20px); border: 1.5px solid var(--rd-line, #F1E4EA); }
+.hk-chart__tip, .hk-legend { font-size: 13px; }
+.hk-dot.is-last { stroke-width: 3; }
+.hk-ax { font-size: 12px; } /* không chữ nào dưới 12px (spec mục 4) */
+
+.hk-nutri__focus { font-size: 16px; line-height: 1.55; }
+.hk-nut { border-radius: var(--rd-r-card, 20px); background: var(--rd-butter, #FFF4DD); }
+.hk-nut__top span { color: var(--rd-teal-text, #12827A); }
+.hk-nut p { font-size: 14px; }
+.hk-nut small { font-size: 13px; }
+.hk-src { font-size: 12.5px; }
+
+.hk-vd__chi div { border-radius: 16px; background: var(--rd-mint, #E6F5F4); }
+.hk-vd__chi small { color: var(--rd-teal-text, #12827A); font-size: 13px; }
+.hk-vd__chi b { font-size: 15px; }
+.hk-vd__them p { border-radius: 16px; font-size: 15px; }
+.hk-vd__o { border-radius: var(--rd-r-card, 20px); background: var(--rd-sky, #EAF3FF); }
+.hk-vd__ic { width: 52px; height: 52px; border-radius: 50%; font-size: 26px; box-shadow: var(--rd-shadow-sm); }
+.hk-vd__ic img.rd-emo { width: 34px; height: 34px; }
+.hk-vd__o b { font-size: 16px; }
+.hk-vd__o p { font-size: 14px; }
+.hk-vd__luu { font-size: 15px; }
+.hk-vd__luu::before {
+  content: ''; display: inline-block; width: 22px; height: 22px; margin-right: 6px; vertical-align: -5px;
+  background: url("../../img/rd/icons/bulb.webp") center / contain no-repeat;
+}
+.hk-an__t { font-size: 16px; }
+.hk-an__td { border-left-color: color-mix(in srgb, var(--teal, #17A398) 30%, #fff); }
+.hk-an__td span { color: var(--rd-teal-text, #12827A); }
+.hk-an__td p { font-size: 15px; }
+.hk-an__tranh li { min-height: 36px; display: inline-flex; align-items: center; font-size: 14px; }
+.hk-milk { border-radius: 16px; background: var(--rd-butter, #FFF4DD); color: #8A4A00; font-size: 14px; }
+
+.hk-pick__why { padding: 5px 12px; border-radius: 999px; background: var(--rd-mint, #E6F5F4); color: var(--rd-teal-text, #12827A); font-size: 13px; font-weight: 700; }
+.hk-all { min-height: var(--rd-tap, 44px); margin-top: 8px; color: var(--rd-pink-text, #C84766); font-size: 15px; font-weight: 700; }
+
+/* Để lại số điện thoại nhờ tư vấn */
+.hk-tv { position: relative; border: 0; border-radius: var(--rd-r-xl, 28px); padding: 20px 18px; background: linear-gradient(135deg, var(--rd-blush, #FEF0F3), var(--rd-mint, #E6F5F4)); }
+@media (min-width: 768px) { .hk-tv { padding: 26px 28px; } }
+.hk-tv__txt { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
+.hk-tv__ic { grid-row: span 2; width: 56px; height: 56px; }
+.hk-tv__txt h3 { font-size: clamp(18px, .8vw + 14px, 21px); }
+.hk-tv__txt p { font-size: 15px; }
+.hk-tv__luu { font-size: 13px; }
+.hk-tv__xong b { font-size: 17px; }
+.hk-tv__xong p img.rd-emo { width: 20px; height: 20px; vertical-align: -4px; }
+@media (max-width: 560px) { .hk-tv__ic { width: 44px; height: 44px; align-self: start; } }
+
+.hk-foot { border-top: 2px dashed var(--rd-line, #F1E4EA); }
+.hk-foot p { font-size: 13px; color: var(--rd-muted, #6E6678); }

@@ -441,6 +441,22 @@
       || PRODUCTS.indexOf(a) - PRODUCTS.indexOf(b);
   }
 
+  /* ---------------- Theme "Lớn lên cùng bé": icon Fluent Emoji 3D (img/rd/icons, giấy phép MIT) ---------------- */
+  const RD_ICON_DIR = 'img/rd/icons/';
+  /* <img> icon; alt rỗng = trang trí. size = cỡ hiển thị (px). */
+  const rdIcon = (slug, size = 28, alt = '', cls = '') => `<img class="rd-emo${cls ? ' ' + cls : ''}" src="${RD_ICON_DIR}${slug}.webp" alt="${esc(alt)}" width="${size}" height="${size}" loading="lazy" decoding="async">`;
+  /* Emoji trong dữ liệu Quản trị (danh mục, độ tuổi) → icon 3D khi hiển thị; emoji lạ giữ nguyên */
+  const RD_EMOJI = { '🧃': 'juice', '🥛': 'milk', '🌿': 'herb', '💊': 'pill', '🍯': 'honey', '🍙': 'rice-ball', '🍎': 'apple', '🍱': 'rice', '💆‍♀️': 'lotion', '💆': 'lotion', '🍼': 'bottle', '🥣': 'bowl', '🧸': 'teddy', '📏': 'ruler', '🎨': 'puzzle', '🎒': 'backpack', '⚽': 'basketball' };
+  /* Sticker 3D kawaii của từng danh mục (img/rd/stickers, tạo bằng Higgsfield): emoji danh mục → sticker riêng */
+  const RD_STICKER = { '🧃': 'nuoc-ep', '🥛': 'sua', '🌿': 'hong-sam', '💊': 'vitamin', '🍯': 'tang-can', '🍙': 'rong-bien', '🍎': 'thuc-pham', '🍱': 'do-an', '💆‍♀️': 'cho-me', '💆': 'cho-me' };
+  const rdSticker = (k, size = 44, alt = '', cls = '') => `<img class="rd-emo rd-stk${cls ? ' ' + cls : ''}" src="img/rd/stickers/${k}.webp" alt="${esc(alt)}" width="${size}" height="${size}" loading="lazy" decoding="async">`;
+  const rdEmoji = (e, size = 24, alt = '') => { const t = String(e || '').trim(); if (RD_STICKER[t]) return rdSticker(RD_STICKER[t], size, alt); const k = RD_EMOJI[t]; return k ? rdIcon(k, size, alt) : esc(e || ''); };
+  const RD_AGE_ICON = { 'me-bau': 'pregnant', '0-6m': 'baby', '6-12m': 'bowl', '1-3y': 'teddy', '3-6y': 'puzzle', '6-12y': 'backpack', '12-18y': 'basketball' };
+  const RD_NEED_ICON = { 'tang-chieu-cao': 'ruler', canxi: 'bone', d3k2: 'sun-face', 'de-khang': 'shield', 'phuc-hoi': 'shield', 'tang-can': 'honey', 'tri-nao': 'brain', 'tieu-hoa': 'leafy', 'vitamin-tong-hop': 'pill', 'an-dam': 'bowl', organic: 'sprout', 'sua-cong-thuc': 'milk', 'sua-tuoi': 'milk', 'cho-me': 'mom-feeding', 'lam-dep': 'lotion', 'an-vat': 'rice-ball' };
+  const rdAgeIcon = (k, size = 24, alt = '') => (RD_AGE_ICON[k] ? rdIcon(RD_AGE_ICON[k], size, alt) : '');
+  /* Nền pastel cho khung ảnh thẻ sản phẩm, theo danh mục */
+  const RD_TONE = { 'nuoc-ep': 'butter', sua: 'sky', 'hong-sam': 'mint', vitamin: 'mint', 'tang-can': 'butter', 'rong-bien': 'mint', 'thuc-pham': 'oat', 'do-an': 'butter', 'cho-me': 'lilac' };
+
   /* ---------------- Product card ---------------- */
   /* Hết hàng = tồn kho bằng 0, HOẶC sản phẩm có phân loại mà mọi phân loại đều hết (Quản trị › Tồn kho) */
   const hetHang = (p) => !!p && (p.stock <= 0 || (Array.isArray(p.variants) && p.variants.length > 0 && p.variants.every((v) => v.oos)));
@@ -450,18 +466,25 @@
     const d = pct(p); const b = brandOf(p); const oos = hetHang(p);
     const tags = (p.tags || []).filter((t) => t !== 'Giảm sâu').slice(0, 2);
     const tagCls = (t) => (t === 'Mới' ? 'badge--new' : t === 'Combo' ? 'badge--teal' : t === 'Sản phẩm hot' ? 'badge--fire' : 'badge--hot');
+    /* Tối đa một sticker nghiêng: giờ vàng > giảm giá > nhãn đầu tiên */
+    const sticker = p.gioVang ? `<span class="badge badge--sale rd-tag">Giờ vàng -${p.gioVang.giam}%</span>`
+      : d >= 5 ? `<span class="badge badge--sale rd-tag">-${d}%</span>`
+        : tags.length ? `<span class="badge ${tagCls(tags[0])} rd-tag">${tags[0] === 'Sản phẩm hot' ? 'Hot' : tags[0]}</span>` : '';
+    const age = p.ages && p.ages.length
+      ? `<span class="rd-agechip">${rdAgeIcon(p.ages[0], 20)}${ageRange(p.ages)}${p.family ? ' & cả nhà' : ''}</span>`
+      : `<span class="rd-agechip">${rdIcon(p.family ? 'hug' : 'mom-feeding', 20)}${p.family ? 'Cả gia đình' : 'Dành cho mẹ'}</span>`;
     return `<article class="pcard ${oos ? 'pcard--oos' : ''}" data-id="${p.id}">
-      <a class="pcard__media" href="${spUrl(p)}">
+      <a class="pcard__media" href="${spUrl(p)}" data-rd-tone="${RD_TONE[p.cat] || 'blush'}">
         <img src="${productThumb(p)}" alt="${esc(shortName(p))}" loading="lazy" width="420" height="420">
-        <div class="pcard__badges">${p.gioVang ? `<span class="badge badge--sale">⏰ -${p.gioVang.giam}% giờ vàng</span>` : d >= 5 ? `<span class="badge badge--sale">-${d}%</span>` : ''}${tags.map((t) => `<span class="badge ${tagCls(t)}">${t === 'Sản phẩm hot' ? '🔥 ' : ''}${t}</span>`).join('')}</div>
+        <div class="pcard__badges">${sticker}</div>
         <button class="pcard__wish ${Wish.has(p.id) ? 'is-on' : ''}" type="button" data-wish="${p.id}" aria-label="Lưu vào yêu thích" aria-pressed="${Wish.has(p.id)}">${I.heart}</button>
       </a>
       <div class="pcard__body">
         <div class="pcard__brand">${esc(b.label)}${p.origin && p.origin !== 'Hàn Quốc' ? ` · ${esc(p.origin)}` : ''}</div>
         <a class="pcard__name" href="${spUrl(p)}" title="${esc(p.name)}">${esc(shortName(p))}</a>
-        <div class="pcard__meta">${p.reviews > 0 ? `<span class="star">${I.star}${p.rating.toFixed(1)} <span class="text-muted">(${p.reviews})</span></span>` : ''}${p.reviews > 0 && p.sold > 0 ? '<span>·</span>' : ''}${p.sold > 0 ? `<span>Đã bán ${p.sold >= 1000 ? (p.sold / 1000).toFixed(1) + 'k' : p.sold}</span>` : ''}${!p.reviews && !p.sold ? `<span class="text-teal fw-600">${I.check} Chính hãng</span>` : ''}</div>
+        <div class="pcard__meta">${p.reviews > 0 ? `<span class="star">${I.star}${p.rating.toFixed(1)} <span class="text-muted">(${p.reviews})</span></span>` : ''}${p.reviews > 0 && p.sold > 0 ? '<span aria-hidden="true">·</span>' : ''}${p.sold > 0 ? `<span>Đã bán ${p.sold >= 1000 ? (p.sold / 1000).toFixed(1) + 'k' : p.sold}</span>` : ''}${!p.reviews && !p.sold ? `<span class="text-teal fw-600">${I.check} Chính hãng</span>` : ''}</div>
+        <div class="pcard__age">${age}</div>
         <div class="pcard__price"><b>${p.variants && p.variants.length > 1 ? '<small>từ</small> ' : ''}${fmt(p.price)}</b>${listPrice(p.oldPrice, p.price) ? `<s>${fmt(p.oldPrice)}</s>` : p.giaGoc ? `<s>${fmt(p.giaGoc)}</s>` : ''}</div>
-        <div class="pcard__age">${p.ages && p.ages.length ? `<span>${I.user}${ageRange(p.ages)}${p.family ? ' & cả nhà' : ''}</span>` : `<span>${p.family ? '👨‍👩‍👧 Cả gia đình' : 'Dành cho mẹ'}</span>`}</div>
         <div class="pcard__actions">
           <button class="btn btn--primary" type="button" data-buy="${p.id}" ${oos ? 'disabled' : ''}>${I.zap}Mua ngay</button>
           <button class="btn btn--outline btn--icon" type="button" data-add="${p.id}" aria-label="Thêm ${esc(shortName(p))} vào giỏ" ${oos ? 'disabled' : ''}>${I.cart}</button>
@@ -473,14 +496,14 @@
   /* ---------------- Menu từ dữ liệu NAV ---------------- */
   const needLink = (k) => { const n = NEEDS.find((x) => x.key === k); return n ? `<li><a href="collections.html?need=${k}">${n.label}</a></li>` : ''; };
   function navColumn(col) {
-    if (col.ages) return `<div><h4>${col.title}</h4><div class="age-list">${AGES.filter((a) => col.ages === true || col.ages.includes(a.key)).map((a) => `<a href="collections.html?age=${a.key}">${a.emoji} ${a.label}</a>`).join('')}</div></div>`;
+    if (col.ages) return `<div><h4>${col.title}</h4><div class="age-list">${AGES.filter((a) => col.ages === true || col.ages.includes(a.key)).map((a) => `<a href="collections.html?age=${a.key}">${rdAgeIcon(a.key, 22) || a.emoji} ${a.label}</a>`).join('')}</div></div>`;
     if (col.needs) return `<div><h4>${col.title}</h4><ul>${col.needs.map(needLink).join('')}</ul></div>`;
     return `<div><h4>${col.title}</h4><ul>${(col.links || []).map(([l, h]) => `<li><a href="${h}">${l}</a></li>`).join('')}</ul></div>`;
   }
   // Màn hình hẹp hơn thì dùng tên rút gọn để thanh menu luôn nằm gọn 1 hàng
   const navLabel = (n) => (n.short || n.tiny ? `<span class="nv-full">${n.short || n.label}</span><span class="nv-short">${n.tiny || n.short || n.label}</span>` : n.label);
   function navItem(n) {
-    if (n.ages) return `<li class="navbar__item"><a class="navbar__link" href="collections.html">${navLabel(n)} ${I.chevron}</a><div class="mega"><div class="age-list">${AGES.map((a) => `<a href="collections.html?age=${a.key}"><span>${a.emoji}</span>${a.label} <small style="color:var(--muted);font-weight:500">· ${a.desc}</small></a>`).join('')}</div></div></li>`;
+    if (n.ages) return `<li class="navbar__item"><a class="navbar__link" href="collections.html">${navLabel(n)} ${I.chevron}</a><div class="mega"><div class="age-list">${AGES.map((a) => `<a href="collections.html?age=${a.key}"><span>${rdAgeIcon(a.key, 28) || a.emoji}</span>${a.label} <small style="color:var(--muted);font-weight:500">· ${a.desc}</small></a>`).join('')}</div></div></li>`;
     if (n.brands) return `<li class="navbar__item"><a class="navbar__link" href="collections.html">${navLabel(n)} ${I.chevron}</a><div class="mega mega--brands"><div class="brand-grid">${BRANDS.map((b) => `<a href="collections.html?brand=${b.key}">${b.label} <small style="color:var(--muted)">· ${b.origin}</small></a>`).join('')}</div></div></li>`;
     if (n.columns) return `<li class="navbar__item"><a class="navbar__link" href="${n.link}">${navLabel(n)} ${I.chevron}</a><div class="mega mega--wide">${n.columns.map(navColumn).join('')}</div></li>`;
     return `<li class="navbar__item"><a class="navbar__link ${n.hot ? 'navbar__link--hot' : ''}" href="${n.link}">${navLabel(n)}</a></li>`;
@@ -502,7 +525,7 @@
       <span class="topbar__item">${I.shield}Chính hãng 100% – Tem phụ, hoá đơn VAT</span>
       <span class="topbar__item">${I.headset}Chuyên gia dinh dưỡng tư vấn miễn phí ${SITE.workingHours}</span>
       <a class="topbar__item topbar__link" href="policy.html">${I.file}Hỗ trợ & chính sách</a>
-      ${(() => { const s = shopeeSale(); return s && SITE.shopee ? `<a class="topbar__item topbar__sale" href="${SITE.shopee}" target="_blank" rel="noopener">🔥 ${esc(s.label)} trên Shopee – mua ngay</a>` : ''; })()}
+      ${(() => { const s = shopeeSale(); return s && SITE.shopee ? `<a class="topbar__item topbar__sale" href="${SITE.shopee}" target="_blank" rel="noopener">${rdIcon('flash', 18)}${esc(s.label)} trên Shopee – mua ngay</a>` : ''; })()}
     </div></div>
     <header class="header" id="header">
       <div class="container header__inner">
@@ -518,16 +541,16 @@
         <div class="header__actions">
           <button class="hact hact--search" type="button" id="btnSearchToggle" aria-label="Tìm kiếm">${I.search}</button>
           <a class="hact hact--hotline" href="tel:${SITE.hotlineTel}">${I.phoneCall}<span><b>${SITE.hotline}</b><small>Tư vấn miễn phí</small></span></a>
-          <a class="hact hact--suckhoe" href="index.html#sucKhoe" title="Đo chỉ số con miễn phí" aria-label="Đo chỉ số con miễn phí"><span class="hact__emoji" aria-hidden="true">📏</span><span class="lbl">Đo chỉ số con miễn phí</span></a>
+          <a class="hact hact--suckhoe rd-pill-do" href="index.html#do-chi-so" data-rd-do aria-label="Đo chỉ số cho bé"><span class="hact__emoji" aria-hidden="true">${rdIcon('ruler', 28)}</span><span class="lbl">Đo chỉ số cho bé</span></a>
           <a class="hact hact--account" href="account.html">${I.user}<span class="lbl">Tài khoản</span></a>
           <button class="hact" type="button" data-open-cart aria-label="Giỏ hàng">${I.cart}<span class="lbl">Giỏ hàng</span><span class="hact__count ${cartCount ? '' : 'hide'}" data-cart-count>${cartCount}</span></button>
         </div>
       </div>
       <nav class="navbar" aria-label="Danh mục chính"><div class="container"><ul class="navbar__list">
         <li class="navbar__item"><a class="navbar__link navbar__link--cat" href="collections.html">${I.grid}<span class="nv-full">Danh mục sản phẩm</span><span class="nv-short">Danh mục</span></a>
-          <div class="mega mega--wide"><div><h4>Danh mục</h4><ul>${CATEGORIES.slice(0, Math.ceil(CATEGORIES.length / 2)).map((c) => `<li><a href="collections.html?cat=${c.key}">${c.icon} ${c.label}</a></li>`).join('')}</ul></div>
-          <div><h4>&nbsp;</h4><ul>${CATEGORIES.slice(Math.ceil(CATEGORIES.length / 2)).map((c) => `<li><a href="collections.html?cat=${c.key}">${c.icon} ${c.label}</a></li>`).join('')}</ul></div>
-          <div><h4>Theo độ tuổi</h4><div class="age-list">${AGES.map((a) => `<a href="collections.html?age=${a.key}">${a.emoji} ${a.label}</a>`).join('')}</div></div>
+          <div class="mega mega--wide"><div><h4>Danh mục</h4><ul>${CATEGORIES.slice(0, Math.ceil(CATEGORIES.length / 2)).map((c) => `<li><a href="collections.html?cat=${c.key}">${rdEmoji(c.icon, 22)} ${c.label}</a></li>`).join('')}</ul></div>
+          <div><h4>&nbsp;</h4><ul>${CATEGORIES.slice(Math.ceil(CATEGORIES.length / 2)).map((c) => `<li><a href="collections.html?cat=${c.key}">${rdEmoji(c.icon, 22)} ${c.label}</a></li>`).join('')}</ul></div>
+          <div><h4>Theo độ tuổi</h4><div class="age-list">${AGES.map((a) => `<a href="collections.html?age=${a.key}">${rdAgeIcon(a.key, 22) || a.emoji} ${a.label}</a>`).join('')}</div></div>
           <div class="mega__promo">🎁 Mua từ 2 sản phẩm giảm thêm 3% – tự động áp dụng <a class="fw-700" href="collections.html?tag=S%E1%BA%A3n%20ph%E1%BA%A9m%20hot">Xem sản phẩm hot →</a></div></div></li>
         <li class="navbar__item"><a class="navbar__link navbar__link--about" href="gioi-thieu.html">Giới thiệu</a></li>
         ${(() => { const sk = suKienHien(); return sk ? `<li class="navbar__item"><a class="navbar__link navbar__link--sk" href="index.html?tab=${sk.id}">${sk.icon ? sk.icon + ' ' : ''}${esc(sk.nhan)}</a></li>` : ''; })()}
@@ -539,18 +562,18 @@
       <div class="mmenu__backdrop" data-close-menu></div>
       <div class="mmenu__panel" role="dialog" aria-label="Menu">
         <div class="mmenu__head"><a class="logo" href="index.html">${SITE.logo ? `<img class="logo__img" src="${SITE.logo}" alt="" width="44" height="44">` : `<span class="logo__mark">🍼</span>`}${SITE.name}</a><button class="mmenu__close" type="button" data-close-menu aria-label="Đóng">${I.close}</button></div>
-        <div class="mmenu__ages">${AGES.map((a) => `<a href="collections.html?age=${a.key}"><span>${a.emoji}</span>${a.label}</a>`).join('')}</div>
+        <a class="mmenu__link mmenu__link--do" href="index.html#do-chi-so" data-rd-do data-close-menu>${rdIcon('ruler', 32)}<span><b>Đo chỉ số cho bé</b><small>Chuẩn WHO · miễn phí</small></span></a>
+        <div class="mmenu__ages">${AGES.map((a) => `<a href="collections.html?age=${a.key}"><span>${rdAgeIcon(a.key, 28) || a.emoji}</span>${a.label}</a>`).join('')}</div>
         <div class="mmenu__contact mmenu__contact--top"><a class="btn btn--primary btn--block" href="tel:${SITE.hotlineTel}">${I.phoneCall}Gọi ${SITE.hotline}</a><a class="btn btn--zalo btn--block" href="${SITE.zalo}" target="_blank" rel="noopener">Chat Zalo với chuyên gia dinh dưỡng</a></div>
-        <details class="mmenu__group"><summary>Danh mục sản phẩm ${I.chevron}</summary><ul>${CATEGORIES.map((c) => `<li><a href="collections.html?cat=${c.key}">${c.icon} ${c.label}</a></li>`).join('')}</ul></details>
-        ${(() => { const sk = suKienHien(); return sk ? `<a class="mmenu__link mmenu__link--sk" href="index.html?tab=${sk.id}">${sk.icon || '⚡'} ${esc(sk.ten)}</a>` : ''; })()}
-        <a class="mmenu__link mmenu__link--sk" href="collections.html?km=1">🏷️ Sản phẩm đang khuyến mãi</a>
-        <a class="mmenu__link" href="gioi-thieu.html">💗 Giới thiệu Hương Chất Kids</a>
+        <details class="mmenu__group"><summary>Danh mục sản phẩm ${I.chevron}</summary><ul>${CATEGORIES.map((c) => `<li><a href="collections.html?cat=${c.key}">${rdEmoji(c.icon, 22)} ${c.label}</a></li>`).join('')}</ul></details>
+        ${(() => { const sk = suKienHien(); return sk ? `<a class="mmenu__link mmenu__link--sk" href="index.html?tab=${sk.id}">${sk.icon ? rdEmoji(sk.icon, 24) : rdIcon('flash', 24)} ${esc(sk.ten)}</a>` : ''; })()}
+        <a class="mmenu__link mmenu__link--sk" href="collections.html?km=1">${rdIcon('ticket', 24)} Sản phẩm đang khuyến mãi</a>
+        <a class="mmenu__link" href="gioi-thieu.html">${rdIcon('heart-pink', 24)} Giới thiệu Hương Chất Kids</a>
         ${NAV.map(navMobile).join('')}
-        <a class="mmenu__link" href="index.html#sucKhoe">📏 Đo chỉ số con miễn phí</a>
-        <a class="mmenu__link" href="diem-danh.html">📅 Điểm danh nhận quà</a>
-        <a class="mmenu__link" href="vi-voucher.html">🎟️ Ví voucher của tôi</a>
-        <a class="mmenu__link" href="account.html">👤 Tài khoản / Đơn hàng</a>
-        <a class="mmenu__link" href="policy.html">📋 Hỗ trợ & chính sách</a>
+        <a class="mmenu__link" href="diem-danh.html">${rdIcon('gift', 24)} Điểm danh nhận quà</a>
+        <a class="mmenu__link" href="vi-voucher.html">${rdIcon('ticket', 24)} Ví voucher của mẹ</a>
+        <a class="mmenu__link" href="account.html"><img class="rd-emo bn-mom" src="img/rd/kids/mat-me-be.webp" alt="" width="24" height="24" loading="lazy" decoding="async"> Tài khoản và đơn hàng</a>
+        <a class="mmenu__link" href="policy.html">${rdIcon('shield', 24)} Hỗ trợ và chính sách</a>
       </div>
     </div>`;
     /* Cột footer lấy từ THEME.footer nếu trang quản trị có cấu hình, không thì dùng mặc định */
@@ -589,22 +612,25 @@
     </div></footer>
     <div class="floating">
       <button class="fab fab--top" type="button" id="btnTop" aria-label="Lên đầu trang">${I.arrowUp}</button>
-      <button class="fab fab--callback" type="button" data-callback aria-label="Yêu cầu gọi lại">${I.headset}<span class="fab__label">Gọi lại cho tôi</span></button>
-      ${SITE.messenger ? `<a class="fab fab--messenger" href="${SITE.messenger}" target="_blank" rel="noopener" aria-label="Messenger">${I.messenger}<span class="fab__label">Chat Messenger</span></a>` : ''}
-      <a class="fab fab--zalo" href="${SITE.zalo}" target="_blank" rel="noopener" aria-label="Zalo">Zalo<span class="fab__label">Chat Zalo</span></a>
-      <a class="fab fab--phone" href="tel:${SITE.hotlineTel}" aria-label="Gọi hotline">${I.phone}<span class="fab__label">${SITE.hotline}</span></a>
+      <div class="floating__nhom" id="fabNhom">
+        <button class="fab fab--callback" type="button" data-callback aria-label="Yêu cầu gọi lại">${I.headset}<span class="fab__label">Gọi lại cho tôi</span></button>
+        ${SITE.messenger ? `<a class="fab fab--messenger" href="${SITE.messenger}" target="_blank" rel="noopener" aria-label="Messenger">${I.messenger}<span class="fab__label">Chat Messenger</span></a>` : ''}
+        <a class="fab fab--zalo" href="${SITE.zalo}" target="_blank" rel="noopener" aria-label="Zalo"><span class="fab__ico" aria-hidden="true">Zalo</span><span class="fab__label">Chat Zalo</span></a>
+        <a class="fab fab--phone" href="tel:${SITE.hotlineTel}" aria-label="Gọi hotline">${I.phone}<span class="fab__label">${SITE.hotline}</span></a>
+      </div>
+      <button class="fab fab--lienhe" type="button" aria-expanded="false" aria-controls="fabNhom">${rdIcon('phone', 28)}<span class="fab__txt">Liên hệ</span></button>
     </div>
-    <nav class="bottom-nav" aria-label="Điều hướng nhanh">
-      <a href="index.html" data-nav="index">${I.home}Trang chủ</a>
-      <a href="collections.html" data-nav="collections">${I.grid}Danh mục</a>
-      <a class="bn-center" href="${SITE.zalo}" target="_blank" rel="noopener"><span class="circle">Zalo</span>Tư vấn</a>
-      <button type="button" data-open-cart>${I.cart}Giỏ hàng<span class="hact__count ${cartCount ? '' : 'hide'}" data-cart-count>${cartCount}</span></button>
-      <a href="account.html" data-nav="account">${I.user}Tài khoản</a>
+    <nav class="bottom-nav bottom-nav--rd" aria-label="Điều hướng nhanh">
+      <a href="index.html" data-nav="index">${rdIcon('house', 28)}<span>Trang chủ</span></a>
+      <a href="collections.html" data-nav="collections">${rdIcon('teddy', 28)}<span>Danh mục</span></a>
+      <a class="bn-center bn-do" href="index.html#do-chi-so" data-rd-do><span class="circle">${rdIcon('ruler', 32)}</span><span>Đo chỉ số</span></a>
+      <a class="bn-zalo" href="${SITE.zalo}" target="_blank" rel="noopener">${rdIcon('chat', 28)}<span>Zalo</span></a>
+      <a href="account.html" data-nav="account"><img class="rd-emo bn-mom" src="img/rd/kids/mat-me-be.webp" alt="" width="28" height="28" loading="lazy" decoding="async"><span>Tài khoản</span></a>
     </nav>
     <div class="drawer" id="cartDrawer" aria-hidden="true">
       <div class="drawer__backdrop" data-close-cart></div>
       <div class="drawer__panel" role="dialog" aria-label="Giỏ hàng">
-        <div class="drawer__head"><h3>🛒 Giỏ hàng của mẹ <span class="text-muted fs-14" data-cart-count-text></span></h3><button class="modal__close" type="button" data-close-cart aria-label="Đóng">${I.close}</button></div>
+        <div class="drawer__head"><h3>${rdIcon('cart', 28)} Giỏ hàng của mẹ <span class="text-muted fs-14" data-cart-count-text></span></h3><button class="modal__close" type="button" data-close-cart aria-label="Đóng">${I.close}</button></div>
         <div class="drawer__body" id="drawerBody"></div>
         <div class="drawer__foot" id="drawerFoot"></div>
       </div>
@@ -618,6 +644,16 @@
     document.body.insertAdjacentHTML('beforeend', footer);
     const page = location.pathname.split('/').pop().replace('.html', '') || 'index';
     $$('.bottom-nav [data-nav]').forEach((a) => a.classList.toggle('is-active', a.dataset.nav === page));
+    $$('.bottom-nav [data-nav].is-active').forEach((a) => a.setAttribute('aria-current', 'page'));
+    /* Nút "Liên hệ" (desktop): gom gọi lại, Messenger, Zalo, điện thoại vào một nút mở ra */
+    const lienHe = $('.fab--lienhe'); const nhom = $('#fabNhom');
+    if (lienHe && nhom) {
+      const dat = (mo) => { lienHe.setAttribute('aria-expanded', String(mo)); nhom.classList.toggle('is-open', mo); };
+      lienHe.addEventListener('click', () => dat(lienHe.getAttribute('aria-expanded') !== 'true'));
+      nhom.addEventListener('click', (e) => { if (e.target.closest('.fab')) dat(false); });
+      document.addEventListener('click', (e) => { if (!e.target.closest('.floating')) dat(false); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && nhom.classList.contains('is-open')) { dat(false); lienHe.focus(); } });
+    }
   }
 
   function updateCartBadges() {
@@ -752,7 +788,7 @@
           <div id="qbDiem"></div>
           <div class="qb__summary" id="qbSummary" aria-live="polite"></div>
           <div class="form-error hide" id="qbError" role="alert"></div>
-          <button class="btn btn--primary btn--lg btn--block btn--stack" type="submit" id="qbSubmit"><span>ĐẶT HÀNG · <span id="qbTotal"></span></span><small>Không cần tài khoản · Kiểm tra hàng trước khi thanh toán</small></button>
+          <button class="btn btn--primary btn--lg btn--block btn--stack" type="submit" id="qbSubmit"><span>Đặt hàng · <span id="qbTotal"></span></span><small>Không cần tài khoản · Kiểm tra hàng trước khi thanh toán</small></button>
           <div class="qb__trust"><span>${I.check}Chính hãng, tem phụ tiếng Việt</span><span>${I.check}Đổi trả 7 ngày</span><span>${I.check}Giao dự kiến ${deliveryEstimate()}</span></div>
           <p class="qb__privacy">Thông tin chỉ dùng để giao hàng và tư vấn, không chia sẻ cho bên thứ ba. <a href="policy.html?p=bao-mat" target="_blank">Chính sách bảo mật</a></p>
         </form>
@@ -876,7 +912,7 @@
     const sdtDat = phoneKey(phone); const code = QB.maDon || (QB.maDon = taoMaDon()); let maGiu = '';
     if (k.dungGT || k.diemDung > 0 || QB.daGiu) {
       btn.innerHTML = '<span>Đang giữ ưu đãi…</span>';
-      const loiGiu = (msg) => { err.textContent = msg; err.classList.remove('hide'); btn.disabled = false; btn.innerHTML = `<span>ĐẶT HÀNG · <span id="qbTotal"></span></span><small>Không cần tài khoản · Kiểm tra hàng trước khi thanh toán</small>`; qbRefresh(); };
+      const loiGiu = (msg) => { err.textContent = msg; err.classList.remove('hide'); btn.disabled = false; btn.innerHTML = `<span>Đặt hàng · <span id="qbTotal"></span></span><small>Không cần tài khoản · Kiểm tra hàng trước khi thanh toán</small>`; qbRefresh(); };
       let res;
       try {
         res = await GT.giuCho({ sdt: sdtDat, token: ss && phoneKey(ss.sdt) === sdtDat ? ss.token : '', maDon: code, ref: k.dungGT ? QB.gt.ma : '', dungGT: k.dungGT ? '1' : '0',
@@ -1178,6 +1214,7 @@
      ===================================================================== */
   const FONT_WEB = {
     'Be Vietnam Pro': 'Be+Vietnam+Pro:wght@400;500;600;700',
+    'Baloo 2': 'Baloo+2:wght@500;600;700;800',
     'Quicksand': 'Quicksand:wght@500;600;700',
     'Nunito': 'Nunito:wght@400;600;700;800',
     'Inter': 'Inter:wght@400;500;600;700',
@@ -1189,6 +1226,8 @@
     if (!ten || !FONT_WEB[ten]) return;
     const id = 'font-' + ten.replace(/\s+/g, '-');
     if (document.getElementById(id)) return;
+    /* Trang đã nạp sẵn phông này trong <head> (link Google Fonts chung) thì không tải lại */
+    if (document.querySelector('link[href*="family=' + FONT_WEB[ten].split(':')[0] + ':"]')) return;
     const l = document.createElement('link');
     l.id = id; l.rel = 'stylesheet';
     l.href = 'https://fonts.googleapis.com/css2?family=' + FONT_WEB[ten] + '&display=swap';
@@ -1210,6 +1249,16 @@
     }
     if (m.teal) r.setProperty('--teal-100', pha(m.teal, 0.14));
     if (m.amber) r.setProperty('--amber-100', pha(m.amber, 0.18));
+    /* Theme "Lớn lên cùng bé": màu nút và màu chữ được làm đậm từ chính màu Quản trị chọn
+       cho tới khi đạt tương phản ≥4.6:1 với chữ / nền trắng (WCAG AA). */
+    if (m.primary || m.teal) {
+      const goc = (k, d) => m[k] || (getComputedStyle(document.documentElement).getPropertyValue('--' + k).trim()) || d;
+      const cta = datTuongPhan(goc('primary', '#F0537A'));
+      r.setProperty('--rd-cta', cta);
+      r.setProperty('--rd-cta-hover', toi(cta, 0.10));
+      r.setProperty('--rd-pink-text', cta);
+      r.setProperty('--rd-teal-text', datTuongPhan(goc('teal', '#17A398')));
+    }
     /* Phông chữ */
     const c = t.chu || {};
     if (c.body) { napFont(c.body); r.setProperty('--font-body', `'${c.body}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`); }
@@ -1248,6 +1297,10 @@
   const hex = (a) => '#' + a.map((x) => Math.max(0, Math.min(255, Math.round(x))).toString(16).padStart(2, '0')).join('');
   const pha = (h, t) => hex(rgb(h).map((c) => c + (255 - c) * (1 - t)));
   const toi = (h, t) => hex(rgb(h).map((c) => c * (1 - t)));
+  /* Độ sáng tương đối và tỉ lệ tương phản với màu trắng theo công thức WCAG */
+  const doSang = (h) => { const [R, G, B] = rgb(h).map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }); return 0.2126 * R + 0.7152 * G + 0.0722 * B; };
+  const tuongPhanTrang = (h) => 1.05 / (doSang(h) + 0.05);
+  const datTuongPhan = (h, min = 4.6) => { let c = hex(rgb(h)), i = 0; while (tuongPhanTrang(c) < min && i++ < 40) c = toi(c, 0.03); return c; };
 
   /* Áp theme ngay khi tải, trước khi các trang vẽ */
   apTheme(window.THEME);
@@ -2090,5 +2143,6 @@
 
   window.MC = { $, $$, fmt, pct, listPrice, param, esc, byId, brandOf, ageLabel, ageRange, productThumb, shortName, addrShow, hoursNote, MULTI_RATE, shopeeSale, shopeeBtn, vietqrPayload, payBox, payQrSvg, openPayQR, transferInfo, stripVN, store, phoneOk, I, starRow, productImage, productCard, Cart, Customer, Wish, submitOrder, shipFee, applyCoupon, maShipTuDong, deliveryEstimate, toast, openQuickBuy, openCallback, openCart, renderDrawer, countdown, orderSuccessHTML, syncStock, applyStock, rankDefault, isForMom, autoScrollRow,
     tierOf, tierByKey, tierNext, tierDiscount, tierBadge, tiers, phoneKey, maHetHan, ketHop, maChoQua, ViMa, GT, DD, openModal, closeModal, sinhNhat, taoMaDon, anEmail, AFF, voucherTicket, maCongKhai, maTotNhat, chipMaDaLuu, daMuaTruoc, vcIcon, maskPhone, addrParse, addrStore, addrFull, loyaltyApi, goiNhanh, taiKhoanNap, Session, saveSession, refreshProfile, couponsFor, openOtp,
-    spUrl, baiUrl, hetHang, chayHang, timSP, boDau, giftFor, giftNote, giftBox, laComboGiam, suKienDangChay, suKienHien, gioVangChay, gioVangCua, gioVangNhan, dangKhuyenMai, ctDangChay, ctMoTa, laNuocLotte, laVip, hangCho, traHang, HangSdt, openLogin, openDoiMk, moiDoiMk, tinhTuDiaChi, ghnQuote, ghnInfo, shipText, shipFrom };
+    spUrl, baiUrl, hetHang, chayHang, timSP, boDau, giftFor, giftNote, giftBox, laComboGiam, suKienDangChay, suKienHien, gioVangChay, gioVangCua, gioVangNhan, dangKhuyenMai, ctDangChay, ctMoTa, laNuocLotte, laVip, hangCho, traHang, HangSdt, openLogin, openDoiMk, moiDoiMk, tinhTuDiaChi, ghnQuote, ghnInfo, shipText, shipFrom,
+    rdIcon, rdEmoji, rdAgeIcon, rdSticker, RD_EMOJI, RD_STICKER, RD_AGE_ICON, RD_NEED_ICON, RD_TONE };
 })();

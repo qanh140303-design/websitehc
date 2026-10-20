@@ -1,0 +1,243 @@
+/* y-shop.css – phần nhìn cho js/rd-y-shop.js (ý tưởng Y01 Y03 Y05 Y07 Y09 Y11 Y13 Y17, theme "Lớn lên cùng bé").
+   Chỉ dùng class tiền tố .ys-* do script thêm (và html.ys-shrink). Animation chỉ dùng transform/opacity.
+   File nạp TRƯỚC shop.css/product.css nên các bộ chọn được viết cụ thể hơn để không bị đè. */
+
+:root { --ys-sh: 8px; --ys-teal-deep: #0F6F68; }
+@media (min-width: 992px) { :root { --ys-sh: 12px; } }
+
+/* ---------- Dùng chung ---------- */
+.ys-sr, .pcard__age .ys-pack .ys-sr {
+  position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; background: none;
+}
+.ys-tick { width: 16px; height: 16px; flex: none; }
+.ys-tick__bg { fill: var(--rd-mint, #E6F5F4); }
+.ys-tick__ck { stroke: var(--rd-teal-text, #12827A); }
+
+/* =====================================================================
+   Y01 · Hàng chip "Mẹ hay hỏi" trong hộp gợi ý tìm kiếm
+   ===================================================================== */
+.search__suggest .ys-ask { padding: 14px 14px 4px; color: var(--rd-ink-2); font-size: 13px; }
+.search__suggest .ys-ask__h { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; color: var(--rd-ink); }
+.search__suggest .ys-ask__h img.rd-emo { width: 22px; height: 22px; border-radius: 0; background: none; }
+.search__suggest .ys-ask__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.search__suggest a.ys-ask__chip {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 14px 6px 8px;
+  border: 1.5px solid transparent; border-bottom: 1.5px solid transparent; border-radius: var(--rd-r-pill, 999px);
+  background: var(--rd-blush, #FEF0F3); color: var(--rd-ink); font-size: 14px; font-weight: 600; line-height: 1.3; text-decoration: none;
+  transition: transform var(--rd-dur, 260ms) var(--rd-spring, ease), border-color .15s, background-color .15s;
+}
+.search__suggest a.ys-ask__chip:nth-child(2) { background: var(--rd-butter, #FFF4DD); }
+.search__suggest a.ys-ask__chip:nth-child(3) { background: var(--rd-mint, #E6F5F4); }
+.search__suggest a.ys-ask__chip:nth-child(4) { background: var(--rd-lilac, #F3EEFF); }
+.search__suggest a.ys-ask__chip img.rd-emo { width: 26px; height: 26px; border-radius: 50%; background: #fff; padding: 2px; object-fit: contain; }
+.search__suggest a.ys-ask__chip:hover, .search__suggest a.ys-ask__chip:focus-visible { border-color: var(--primary); background: #fff; }
+@media (hover: hover) and (pointer: fine) { .search__suggest a.ys-ask__chip:hover { transform: translateY(-2px); } }
+.search__suggest a.ys-ask__chip { min-width: 0; }
+.search__suggest .ys-ask--match .ys-ask__list { display: flex; flex-wrap: wrap; }
+
+/* =====================================================================
+   Y05 · Pill tuổi + quy cách trên thẻ sản phẩm
+   ===================================================================== */
+.pcard__age.ys-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; min-width: 0; }
+.pcard__age.ys-pills > .rd-agechip { flex: none; max-width: 100%; }
+.pcard__age .ys-pack {
+  display: inline-flex; align-items: center; gap: 5px; min-width: 0; max-width: 100%;
+  padding: 2px 10px 2px 3px; border-radius: var(--rd-r-pill, 999px);
+  background: var(--rd-sky, #EAF3FF); color: var(--rd-ink-2); font-weight: 600;
+}
+.pcard__age .ys-pack img.ys-pack__ic { flex: none; width: 22px; height: 22px; padding: 2px; border-radius: 50%; background: #fff; }
+.pcard__age .ys-pack .ys-pack__t {
+  display: block; min-width: 0; max-width: 13em; padding: 0; margin: 0; border-radius: 0; background: none;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;
+}
+
+/* Trang danh mục: chip tuổi có bé 3D lớn dần (bé đứng trong chip, càng lớn càng cao) */
+#ageChips.ys-agerow { padding-top: 16px; align-items: flex-end; }
+#ageChips .ys-agechip { overflow: visible; gap: 6px; padding-left: 8px; }
+#ageChips .ys-agechip > img.rd-emo { display: none; }
+#ageChips .ys-kid {
+  flex: none; align-self: flex-end; width: auto; height: var(--ys-kh, 32px);
+  margin: calc(30px - var(--ys-kh, 32px)) 0 -5px; transform-origin: 50% 100%;
+  filter: drop-shadow(0 2px 2px rgba(150, 80, 100, .18));
+  transition: transform var(--rd-dur, 260ms) var(--rd-spring, ease);
+}
+#ageChips .ys-agechip.is-active .ys-kid { animation: ys-kid-pop .6s var(--rd-spring, ease) both; }
+@media (hover: hover) and (pointer: fine) { #ageChips .ys-agechip:hover .ys-kid { transform: translateY(-3px) rotate(-5deg); } }
+@keyframes ys-kid-pop { 0% { transform: translateY(6px) scale(.86); } 55% { transform: translateY(-4px) scale(1.06); } 100% { transform: none; } }
+/* Điện thoại: hàng chip tuổi dính dưới header khi cuộn */
+@media (max-width: 991px) {
+  html.ys-shrink { --ys-shnow: var(--ys-sh); }
+  #ageChips.ys-agerow {
+    position: sticky; top: calc(var(--ys-hdr, 64px) - var(--ys-shnow, 0px)); z-index: 30;
+    margin: -4px -16px 12px; padding: 12px 16px 8px; background: var(--rd-cream, #FFFAF5);
+    box-shadow: 0 8px 12px -12px rgba(170, 80, 110, .35);
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) { #ageChips.ys-agerow { margin: -4px -24px 12px; padding: 12px 24px 8px; } }
+
+/* =====================================================================
+   Y03 · "Đủ cho bé dùng khoảng N ngày" dưới ô số lượng
+   ===================================================================== */
+.ys-days {
+  display: flex; align-items: center; gap: 12px; margin: calc(var(--rd-s-2, 8px) * -1) 0 var(--rd-s-4, 16px);
+  padding: 10px 14px; border-radius: 16px; background: var(--rd-sky, #EAF3FF);
+  color: var(--rd-ink-2); font-size: 14px; line-height: 1.45;
+}
+.ys-days[hidden] { display: none; }
+.ys-days img.ys-days__ic { width: 34px; height: 34px; flex: none; }
+.ys-days__txt { min-width: 0; }
+.ys-days__main { display: block; color: var(--rd-ink); font-size: 15px; }
+.ys-days__main b { font-weight: 800; color: var(--rd-ink); white-space: nowrap; }
+.ys-days__n { display: inline-block; min-width: 1.4ch; font-family: var(--font-head); font-size: 19px; line-height: 1; font-variant-numeric: tabular-nums; }
+.ys-days__sub { display: block; margin-top: 2px; font-size: 13px; color: var(--rd-muted); }
+
+/* =====================================================================
+   Y07 · Dòng trấn an dưới nút mua / nút đặt hàng
+   ===================================================================== */
+.ys-assure {
+  list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 4px 14px; font-size: 13px; line-height: 1.45; color: var(--rd-ink-2);
+}
+.ys-assure li { display: inline-flex; align-items: center; gap: 5px; margin: 0; padding: 0; }
+.ys-assure li::before { content: none; }
+.ys-assure--co { margin-top: 12px; }
+.ys-assure--co + .qb__trust { display: none; }   /* dòng cũ được gộp vào dòng mới */
+
+/* =====================================================================
+   Y09 · Cách dùng cho bé: thẻ từng bước vuốt ngang
+   ===================================================================== */
+.ys-steps { margin-top: var(--rd-s-6, 32px); }
+.ys-steps__head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.ys-steps__head img.rd-emo { width: 40px; height: 40px; flex: none; }
+.ys-steps__head h2 { margin: 0; font-size: var(--rd-fs-xl, 22px); line-height: 1.2; }
+.ys-steps__head p { margin: 2px 0 0; font-size: 14px; color: var(--rd-muted); }
+.ys-steps__list {
+  list-style: none; display: flex; gap: 12px; margin: 0 -16px; padding: 14px 16px 10px;
+  overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; scrollbar-width: none; overscroll-behavior-x: contain;
+}
+.ys-steps__list::-webkit-scrollbar { display: none; }
+.ys-steps__list:focus-visible { outline: 3px solid var(--rd-teal-text, #12827A); outline-offset: 2px; border-radius: 20px; }
+.ys-step {
+  --ys-tone: var(--rd-blush, #FEF0F3);
+  position: relative; flex: 0 0 min(78%, 300px); scroll-snap-align: start; margin: 0;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 16px 16px 18px; border-radius: var(--rd-r-card, 20px); background: var(--ys-tone);
+}
+.ys-step[data-tone="mint"] { --ys-tone: var(--rd-mint, #E6F5F4); }
+.ys-step[data-tone="butter"] { --ys-tone: var(--rd-butter, #FFF4DD); }
+.ys-step[data-tone="sky"] { --ys-tone: var(--rd-sky, #EAF3FF); }
+.ys-step[data-tone="oat"] { --ys-tone: var(--rd-oat, #F7EFE4); }
+.ys-step::before { content: none; }
+.ys-step__art {
+  position: relative; display: grid; place-items: center; width: 84px; height: 84px; margin-bottom: 4px;
+  border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255, 255, 255, .55), var(--rd-shadow-sm);
+}
+.ys-step__art img.rd-emo { width: 52px; height: 52px; }
+.ys-step__art--kid { align-items: end; overflow: visible; }
+.ys-step__kid { height: 82px; width: auto; margin-bottom: 2px; filter: drop-shadow(0 3px 3px rgba(150, 80, 100, .18)); }
+.ys-step__art img.ys-step__badge { position: absolute; right: -10px; bottom: -4px; width: 34px; height: 34px; }
+.ys-step__lbl { font-size: 13px; font-weight: 700; color: var(--ys-teal-deep); letter-spacing: .01em; }
+.ys-step__txt { margin: 0; font-size: 15px; line-height: 1.55; color: var(--rd-ink); }
+.ys-step__warn { position: absolute; top: 12px; right: 12px; font-size: 15px; --rd-tilt: 4deg; }
+.ys-steps__seg { display: flex; gap: 6px; max-width: 220px; margin: 4px auto 0; }
+.ys-steps__seg i { flex: 1; height: 4px; border-radius: 999px; background: var(--rd-line-strong, #D9C3CD); opacity: .55; transform-origin: 0 50%; transition: opacity .25s, background-color .25s; }
+.ys-steps__seg i.is-on { background: var(--primary); opacity: 1; }
+.ys-steps__note { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: var(--rd-ink-2); max-width: 70ch; }
+.ys-steps__note .ys-tick { margin-top: 3px; }
+.ys-steps--one .ys-step { flex-basis: 100%; max-width: 560px; flex-direction: row; align-items: center; gap: 16px; }
+.ys-steps--one .ys-step__art { flex: none; margin: 0; }
+.ys-steps--one .ys-step > .ys-step__lbl { display: none; }
+@media (min-width: 768px) {
+  .ys-steps__list { display: grid; grid-template-columns: repeat(var(--ys-n, 3), minmax(0, 1fr)); max-width: calc(var(--ys-n, 3) * 320px); margin: 0; padding: 14px 0 4px; overflow: visible; }
+  .ys-steps__seg, .ys-steps__swipe { display: none; }
+  .ys-steps--one .ys-steps__list { display: flex; }
+}
+
+/* =====================================================================
+   Y11 · Thanh freeship sinh động (ngăn giỏ + trang giỏ)
+   ===================================================================== */
+.freeship-bar.ys-fs {
+  display: block; margin-bottom: 4px; padding: 12px 14px 12px; border-radius: 18px;
+  background: var(--rd-mint, #E6F5F4); color: var(--rd-ink-2); font-size: 14px; line-height: 1.45;
+}
+.freeship-bar.ys-fs .freeship-bar__ico { display: none; }
+.freeship-bar.ys-fs .freeship-bar__txt { display: block; }
+.freeship-bar.ys-fs b { color: var(--rd-ink); font-weight: 800; }
+.ys-fs__msg { display: block; }
+.is-full .ys-fs__msg { display: flex; align-items: center; gap: 6px; }
+.ys-fs__msg img.ys-fs__party { width: 26px; height: 26px; flex: none; }
+.is-full .ys-fs__msg { font-weight: 600; color: var(--rd-ink); }
+.is-full .ys-fs__msg b { color: var(--ys-teal-deep); }
+/* overflow: hộp .ys-fs__run dịch bằng transform nên phần thừa bên phải không được tạo thanh cuộn ngang */
+.ys-fs__track { position: relative; margin-top: 0; padding-top: 48px; overflow: hidden; overflow: clip; }
+.freeship-bar.ys-fs .bar {
+  position: relative; height: 12px; margin: 0; border-radius: 999px; overflow: hidden;
+  background: #fff; box-shadow: inset 0 0 0 1px rgba(18, 130, 122, .18);
+}
+.freeship-bar.ys-fs .bar i {
+  display: block; height: 100%; border-radius: 999px; transform-origin: 0 50%;
+  background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, .28) 0 6px, transparent 6px 12px), linear-gradient(90deg, #8FD9D0, var(--teal, #17A398));
+  transition: transform .9s var(--rd-ease, ease);
+}
+.ys-fs__run {
+  --p: 0; position: absolute; left: 0; bottom: 8px; width: calc(100% - 66px); height: 46px; pointer-events: none;
+  transform: translateX(calc(var(--p) * 1%)); transition: transform .9s var(--rd-ease, ease);
+}
+.ys-fs__ride { position: absolute; left: 0; bottom: 0; width: 34px; height: 46px; }
+.ys-fs__kid { position: absolute; left: 8px; bottom: 6px; width: auto; height: 38px; transform-origin: 50% 100%; }
+.ys-fs__wagon { position: absolute; left: 0; bottom: 0; width: 34px; height: 15px; overflow: visible; }
+.ys-wh { transform-box: fill-box; transform-origin: center; }
+img.ys-fs__goal { position: absolute; right: 0; bottom: 4px; width: 30px; height: 30px; }
+.ys-fs.is-moving .ys-fs__kid { animation: ys-ride-bob .3s ease-in-out 3; }
+.ys-fs.is-moving .ys-wh { animation: ys-wheel .45s linear 2; }
+.ys-fs.is-full .ys-fs__kid { animation: ys-hop .55s var(--rd-spring, ease) .9s 2 both; }
+.ys-fs.is-full img.ys-fs__goal { animation: ys-goal 2.6s ease-in-out .9s 2; }
+@keyframes ys-ride-bob { 0%, 100% { transform: none; } 50% { transform: translateY(-2px) rotate(-3deg); } }
+@keyframes ys-wheel { to { transform: rotate(360deg); } }
+@keyframes ys-hop { 0%, 100% { transform: none; } 40% { transform: translateY(-9px) rotate(-6deg); } 70% { transform: translateY(0) scale(1.04, .96); } }
+@keyframes ys-goal { 0%, 100% { transform: none; } 20% { transform: rotate(-8deg) scale(1.08); } 40% { transform: rotate(6deg); } 60% { transform: none; } }
+#drawerBody .freeship-bar.ys-fs { margin-top: 12px; }
+
+/* =====================================================================
+   Y13 · Pill điểm thưởng cạnh giá
+   ===================================================================== */
+.pdp__price .ys-pts {
+  position: relative; align-self: center; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 34px; padding: 4px 12px 4px 6px; border-radius: var(--rd-r-pill, 999px);
+  background: var(--rd-butter, #FFF4DD); color: var(--rd-ink); font-size: 13px; font-weight: 600; line-height: 1.3; text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 176, 32, .35);
+  transition: transform var(--rd-dur, 260ms) var(--rd-spring, ease), box-shadow .15s;
+}
+.pdp__price .ys-pts::after { content: ''; position: absolute; inset: -5px 0; }   /* vùng chạm ≥44px */
+.pdp__price .ys-pts img.rd-emo { width: 24px; height: 24px; flex: none; }
+.pdp__price .ys-pts:hover, .pdp__price .ys-pts:focus-visible { box-shadow: inset 0 0 0 1.5px var(--amber, #FFB020); }
+@media (hover: hover) and (pointer: fine) { .pdp__price .ys-pts:hover img.rd-emo { transform: rotate(-12deg) scale(1.1); transition: transform var(--rd-dur, 260ms) var(--rd-spring, ease); } }
+
+/* =====================================================================
+   Y17 · Header thu gọn khi cuộn (chỉ transform) + icon giỏ xe đẩy
+   ===================================================================== */
+#header { transition: transform .35s var(--rd-ease, ease), box-shadow .2s; }
+#header .header__inner > * { transition: transform .35s var(--rd-ease, ease); }
+#header .logo small { transition: opacity .25s; }
+html.ys-shrink #header { transform: translate3d(0, calc(var(--ys-sh) * -1), 0); }
+html.ys-shrink #header .header__inner > :not(.search) { transform: translateY(calc(var(--ys-sh) / 2)); }
+html.ys-shrink #header .header__inner > .logo { transform: translateY(calc(var(--ys-sh) / 2)) scale(.86); transform-origin: 0 50%; }
+html.ys-shrink #header .logo small { opacity: 0; }
+@media (min-width: 992px) { html.ys-shrink #header .header__inner > .search { transform: translateY(calc(var(--ys-sh) / 2)); } }
+html.no-sticky #header, html.no-sticky #header .header__inner > * { transform: none !important; }
+
+.hact .ys-stroller { overflow: visible; transform-origin: 50% 88%; transition: transform .3s var(--rd-spring, ease); }
+.ys-stroller__hood { fill: #FBD0DB; fill: color-mix(in srgb, var(--primary, #F0537A) 24%, #fff); }
+@media (hover: hover) and (pointer: fine) { .ys-cartbtn:hover .ys-stroller { transform: rotate(-7deg); } }
+.hact .ys-stroller.rd-bump { animation: ys-stroll .62s var(--rd-spring, ease); }
+@keyframes ys-stroll { 0%, 100% { transform: none; } 25% { transform: translate(-2px, -3px) rotate(-11deg); } 55% { transform: translate(2px, 0) rotate(6deg); } 78% { transform: rotate(-2deg); } }
+
+/* =====================================================================
+   Giảm chuyển động: đứng yên ở trạng thái cuối
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  #header, #header .header__inner > *, #header .logo small, .hact .ys-stroller,
+  .ys-fs__run, .freeship-bar.ys-fs .bar i, #ageChips .ys-kid, .search__suggest a.ys-ask__chip, .pdp__price .ys-pts { transition: none !important; }
+  .ys-fs__kid, .ys-wh, img.ys-fs__goal, #ageChips .ys-kid, .hact .ys-stroller.rd-bump { animation: none !important; }
+}

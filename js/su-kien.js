@@ -88,7 +88,7 @@
     /* máy chủ đã giữ sẵn chỗ cho thanh tab → thay vào đúng chỗ, trang không bị xô */
     const cho = app.querySelector('.sk-tabs-cho'); if (cho) cho.remove();
     app.insertAdjacentHTML('afterbegin', `<div class="sk-tabs"><div class="container sk-tabs__in" role="tablist">
-        <button type="button" role="tab" data-sk-tab="home">🏠 Trang chủ</button>
+        <button type="button" role="tab" data-sk-tab="home"><img class="rd-emo" src="img/rd/icons/house.webp" alt="" width="22" height="22" decoding="async">Trang chủ</button>
         <button type="button" role="tab" data-sk-tab="${esc(sk.id)}" class="sk-tabs__sk"><b>${sk.icon || '⚡'} ${esc(sk.nhan)}</b><small>${esc(sk.ten.replace(sk.nhan, '').trim() || 'Sale')}</small></button>
       </div></div>
       <div class="sk sk--${esc(sk.id)}" id="skTab" hidden></div>`);
