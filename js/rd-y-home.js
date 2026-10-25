@@ -267,9 +267,10 @@
     if (/sắt|kẽm|ăn ngon|vị giác/.test(t)) return { k: 'tang-can' };
     return { k: 'de-khang', ic: 'sparkles' };
   }
-  function dsFact() {
+  /* gdChon / hsChon: chặng tuổi và bé cụ thể (popup chào trang chủ); bỏ trống = bé đã lưu trên máy như cũ */
+  function dsFact(gdChon, hsChon) {
     const GD = (window.HK_GROWTH && window.HK_GROWTH.GIAI_DOAN) || {};
-    const hs = hoSo(), cuaBe = hs ? giaiDoan(thangTuoi(hs.dob)) : '';
+    const hs = hsChon || hoSo(), cuaBe = gdChon || (hs ? giaiDoan(thangTuoi(hs.dob)) : '');
     const keys = cuaBe && GD[cuaBe] ? [cuaBe] : Object.keys(GD);
     const out = [];
     keys.forEach((gd) => ((GD[gd] && GD[gd].chat) || []).forEach((c) => {
@@ -289,6 +290,17 @@
       ? `Bé ${tuoi} cần khoảng <b>${esc(f.luong)} ${esc(thuong(f.ten))}</b> mỗi ngày.`
       : `<b>${esc(f.ten)}</b> cho bé ${tuoi}: ${esc(thuong(f.luong))}.`;
   }
+  /* Cho popup chào trang chủ (js/chao-be.js): điều hôm nay của một chặng tuổi + món hỗ trợ điều đó,
+     cùng dữ liệu, cùng cách chọn theo ngày và cùng cách chọn món với khối "Bạn có biết?" bên dưới */
+  window.RD_FACT = {
+    homNay(gd, hs) {
+      const F = dsFact(gd, hs);
+      if (!F.length) return null;
+      const f = F[ngaySo() % F.length], d = DIEM.find((x) => x.k === f.k) || DIEM[0];
+      const kq = chonSP({ needs: d.needs, tuoi: gd, n: 3 });
+      return { f, d, cau: cauFact(f), sp: kq.ds, theoTuoi: kq.theoTuoi, spHtml: kq.ds.map(spHang).join(''), icon: ic(f.ic, 18) };
+    },
+  };
 
   function kidCuaBe(hs) {
     if (!hs) return 'be-gai';

@@ -228,6 +228,7 @@ html.rd-motion .hk-hero__art.is-played .hk-hero__say { animation: hk-say .5s var
 .hk-form__head h3 img.rd-emo { width: 32px; height: 32px; }
 .hk-form { gap: 16px; }
 .hk-form__hi { display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 18px; background: var(--rd-sky, #EAF3FF); }
+.hk-form__mat { flex: none; width: 48px; height: 48px; object-fit: contain; }
 .hk-form__hi p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--rd-ink-2, #574F61); }
 .hk-form .field { display: grid; gap: 6px; align-content: start; }
 .hk-form .cn-o.input { min-height: var(--rd-tap-main, 48px); font-size: 16px; border-radius: var(--rd-r-input, 14px); }

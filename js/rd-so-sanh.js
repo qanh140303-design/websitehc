@@ -484,5 +484,5 @@
     setTimeout(() => { bayVaoGio(nut); beVui(nut); }, 30);
   });
 
-  window.RDSoSanh = { chen, veKhoi };
+  window.RDSoSanh = { chen, veKhoi, dien };   // dien: cho popup chào trang chủ (js/chao-be.js) diễn khối vẽ bằng veKhoi
 })();

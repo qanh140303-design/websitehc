@@ -245,3 +245,32 @@ test('báo cáo bán hàng: tên nguồn cũ (fb, facebook.com, m.facebook.com, 
   const r = await m.qt('action=qtBaoCaoBan'), ten = Object.fromEntries(r.nguon.map((x) => [x.ten, x.phien]));
   assert.deepStrictEqual(ten, { Facebook: 3, Zalo: 1, 'Trực tiếp': 1 });
 });
+
+/* ---------- Vận động cùng bé ---------- */
+test('vận động cùng bé: cộng điểm 1 lần / ngày, tập quá ngắn không cộng, chuỗi 7 ngày nhận voucher 1 lần, phiên giả bị từ chối', async () => {
+  const m = taoMay();
+  await m.get('action=dangKy&sdt=' + SDT + '&ten=Mẹ Thử&email=me.thu@example.com');
+  const t = (await dangNhapOtp(m, SDT)).token;
+  assert.strictEqual((await m.get('action=vdHoanThanh&token=sai&giay=300&soBai=3')).loi, 'token', 'phiên giả bị từ chối');
+  const cfg = await m.get('action=vdCauHinh');
+  assert.strictEqual(cfg.ok, true); assert.strictEqual(cfg.cauHinh.diemNgay, 500);
+  const tq0 = await m.get('action=vdTongQuan&token=' + t);
+  assert.strictEqual(tq0.ok, true, JSON.stringify(tq0)); assert.strictEqual(tq0.daTapHomNay, false); assert.strictEqual(tq0.chuoi, 0);
+  assert.strictEqual((await m.get('action=vdHoanThanh&token=' + t + '&giay=20&soBai=3&nhom=3-6y')).code, 'TOO_SHORT', 'tập quá ngắn không cộng điểm');
+  // giả các ngày tập liên tiếp trước hôm nay (chỉ trong tháng này – chuỗi sang tháng tính lại)
+  const vn = (d) => new Date(Date.now() + 7 * 36e5 - d * 864e5).toISOString().slice(0, 10);
+  const homNay = vn(0), truoc = Math.min(6, Number(homNay.slice(8, 10)) - 1);
+  for (let i = truoc; i >= 1; i--) m.trang('Vận động').appendRow(["'" + vn(i), "'" + SDT, new Date(), '3-6y', 3, 300, truoc - i + 1, 500, '', '', 'VD:' + SDT + ':' + vn(i)]);
+  const r = await m.get('action=vdHoanThanh&token=' + t + '&giay=300&soBai=3&nhom=3-6y');
+  assert.strictEqual(r.ok, true, JSON.stringify(r)); assert.strictEqual(r.moi, true); assert.strictEqual(r.diem, 500); assert.strictEqual(r.chuoi, truoc + 1);
+  if (r.chuoi >= 7) assert.deepStrictEqual(r.voucher.map((v) => v.nguon), ['VD_7'], 'đủ 7 ngày nhận voucher');
+  const r2 = await m.get('action=vdHoanThanh&token=' + t + '&giay=300&soBai=3&nhom=3-6y');
+  assert.strictEqual(r2.moi, false); assert.strictEqual(r2.diem, 0, 'tập lại trong ngày không cộng thêm'); assert.strictEqual(r2.voucher.length, 0, 'voucher không cấp 2 lần');
+  assert.strictEqual(r2.soDu, r.soDu);
+  const tq = await m.get('action=vdTongQuan&token=' + t);
+  assert.strictEqual(tq.daTapHomNay, true); assert.strictEqual(tq.chuoi, truoc + 1); assert.ok(tq.ngayTap.includes(homNay));
+  assert.strictEqual(tq.moc[0].daNhan, r.chuoi >= 7);
+  const vc = await m.get('action=vcCuaToi&token=' + t);
+  assert.strictEqual(vc.ds.filter((v) => v.nguon === 'VD_7').length, r.chuoi >= 7 ? 1 : 0);
+  if (r.chuoi >= 7) assert.strictEqual(vc.ds.find((v) => v.nguon === 'VD_7').nguonTen, 'Vận động 7 ngày');
+});

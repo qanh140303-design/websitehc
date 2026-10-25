@@ -1,0 +1,105 @@
+/* Popup chào ở trang chủ (js/chao-be.js) – theme "Lớn lên cùng bé". Nằm dưới form đo / đăng nhập (.modal 100), giỏ hàng (.drawer 95)
+   và thông báo (.toasts 120) để mẹ vẫn đo, đăng nhập, thêm vào giỏ được ngay trong popup.
+   Chuyển động dùng bộ chung của web: --rd-ease / --rd-spring / --rd-dur (css/rd/base.css), keyframes rd-rv-* (css/rd/motion.css). */
+html.chao-mo, html.chao-mo body { overflow: hidden; }
+.chao { position: fixed; inset: 0; z-index: 92; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.chao__nen { position: absolute; inset: 0; background: rgba(43, 37, 51, .42); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity var(--rd-dur, 260ms) var(--rd-ease); }
+.chao__khung {
+  position: relative; display: flex; flex-direction: column; width: min(760px, 100%); max-height: min(92vh, 900px);
+  border-radius: var(--rd-r-xl, 28px); overflow: hidden; box-shadow: 0 24px 60px -20px rgba(120, 40, 70, .45);
+  background:
+    radial-gradient(120% 60% at 0% 0%, var(--rd-sky, #EAF3FF) 0%, transparent 55%),
+    radial-gradient(90% 60% at 100% 100%, var(--rd-blush, #FDEDF2) 0%, transparent 60%),
+    var(--rd-cream, #FFFAF5);
+  opacity: 0; transform: translateY(18px) scale(.96); transition: opacity var(--rd-dur, 260ms) var(--rd-ease), transform .5s var(--rd-spring);
+}
+.chao.is-vao .chao__nen { opacity: 1; }
+.chao.is-vao .chao__khung { opacity: 1; transform: none; }
+.chao.is-ra .chao__nen, .chao.is-ra .chao__khung { opacity: 0; transition: opacity .2s var(--rd-ease), transform .2s var(--rd-ease); }
+.chao.is-ra .chao__khung { transform: translateY(10px) scale(.98); }
+
+.chao__tren { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px 6px; }
+.chao__cham { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.chao__cham li { width: 26px; height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--rd-pink-text, #C84766) 18%, #fff); transition: background var(--rd-dur, 260ms) var(--rd-ease), width .4s var(--rd-spring); }
+.chao__cham li.is-da { background: color-mix(in srgb, var(--rd-pink-text, #C84766) 55%, #fff); }
+.chao__cham li.is-nay { width: 40px; background: var(--rd-cta, #CA4666); }
+.chao__sau { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 0; border-radius: 99px; background: rgba(255, 255, 255, .8);
+  color: var(--rd-ink-2, #574F61); font: 600 14px/1 var(--font-body, inherit); cursor: pointer; }
+.chao__sau:hover { background: #fff; color: var(--rd-ink, #2B2533); }
+
+.chao__noi { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 6px 28px 20px; outline: none; }
+.chao__duoi { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 28px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid color-mix(in srgb, var(--rd-pink-text, #C84766) 12%, transparent); background: rgba(255, 255, 255, .7); }
+.chao__duoi:empty { display: none; }
+.chao__duoi .btn--lg { min-width: 180px; }
+
+.chao__mat { margin: 6px 0 0; font-family: var(--rd-font-hand, 'Patrick Hand', cursive); font-size: 22px; color: var(--rd-pink-text, #C84766); }
+.chao__tieu { margin: 2px 0 6px; font-family: var(--font-head); font-weight: 800; font-size: clamp(24px, 5vw, 34px); line-height: 1.15; color: var(--rd-ink, #2B2533); text-wrap: balance; }
+.chao__phu { margin: 0 0 10px; font-size: 15.5px; color: var(--rd-ink-2, #574F61); }
+.chao__ghi { display: flex; gap: 6px; align-items: flex-start; margin: 10px 0 0; font-size: 13px; color: var(--rd-muted, #6E6678); }
+.chao__ghi svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+
+/* Bước 1: đo sức khỏe (chạm bé là bé nhảy – rd-vui.js) */
+.chao__kids { display: flex; align-items: flex-end; justify-content: center; gap: 4%; height: 150px; margin: 8px 0 14px; }
+.chao__kids img { height: 100%; width: auto; max-width: 22%; object-fit: contain; object-position: 50% 100%; }
+.chao__kids img:nth-child(1) { height: 52%; } .chao__kids img:nth-child(2) { height: 68%; } .chao__kids img:nth-child(3) { height: 86%; }
+.chao__ds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 18px; padding: 0; list-style: none; }
+.chao__ds li { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 18px; background: rgba(255, 255, 255, .85); font-size: 13.5px; color: var(--rd-ink-2, #574F61); }
+.chao__ds li img { flex: none; width: 36px; height: 36px; }
+.chao__ds b { display: block; font-size: 15px; color: var(--rd-ink, #2B2533); }
+.chao__nut-chinh { display: flex; justify-content: center; padding-top: 6px; }
+
+/* Bước 2: khối so sánh của rd-so-sanh.js, trong popup luôn 1 cột, tiêu đề đã có ở trên */
+.chao__do-lai { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 6px 12px; border: 1.5px solid var(--line, #EADFE4); border-radius: 99px;
+  background: #fff; color: var(--rd-ink-2, #574F61); font: 600 14px/1.2 inherit; cursor: pointer; }
+.chao .rd-ss { grid-template-columns: minmax(0, 1fr); margin: 14px 0 0; padding: 18px 16px; box-shadow: none; background: rgba(255, 255, 255, .6); }
+.chao .rd-ss__title { display: none; }
+.chao .rd-ss__sub { margin-top: 0; }
+
+/* Bước 3: tập thể dục + tài khoản */
+.chao__buoc--tap .hk-vd__ds { margin: 4px 0 14px; }
+.chao__tk { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 12px 14px; border-radius: 18px; background: var(--rd-butter, #FFF6DD); }
+.chao__tk > img { flex: none; width: 32px; height: 32px; }
+.chao__tk p { flex: 1 1 220px; margin: 0; font-size: 13.5px; color: var(--rd-ink-2, #574F61); }
+.chao__tk p b { display: block; font-size: 15px; color: var(--rd-ink, #2B2533); }
+.chao__tk-nut { display: flex; gap: 8px; }
+.chao__tk--co { background: var(--rd-mint, #E6F5F3); }
+.chao__tap { margin-top: 14px; gap: 8px; }
+
+/* Bước 4: mỗi ngày một điều về bé (khối yh-fact + hàng sản phẩm yh-sp của trang chủ) */
+.chao__fact { margin-top: 8px; }
+.chao__h3 { display: flex; align-items: center; gap: 8px; margin: 18px 0 0; font-family: var(--font-head); font-size: 19px; color: var(--rd-ink, #2B2533); }
+.chao__sp { display: grid; gap: 8px; margin-top: 10px; }
+
+.chao__cho { display: flex; align-items: center; gap: 10px; min-height: 160px; justify-content: center; color: var(--rd-muted, #6E6678); }
+.chao__xoay { width: 22px; height: 22px; border-radius: 50%; border: 3px solid color-mix(in srgb, var(--rd-cta, #CA4666) 25%, #fff); border-top-color: var(--rd-cta, #CA4666); animation: chaoXoay .8s linear infinite; }
+@keyframes chaoXoay { to { transform: rotate(360deg); } }
+
+/* Chuyển bước: trượt theo hướng đi, bé ở bước 1 lần lượt bật vào (keyframes chung rd-rv-*) */
+@media (prefers-reduced-motion: no-preference) {
+  .chao__buoc.is-tiep { animation: rd-rv-right .5s var(--rd-ease) both; }
+  .chao__buoc.is-lui { animation: rd-rv-left .5s var(--rd-ease) both; }
+  .chao__buoc--do .chao__kids img { animation: rd-rv-pop .6s var(--rd-spring) both; animation-delay: calc(var(--n) * 90ms + 120ms); transform-origin: 50% 100%; }
+  .chao__buoc--tap .hk-vd__o, .chao__buoc--fact .chao__sp > * { animation: rd-rv-up .5s var(--rd-ease) both; }
+  .chao__buoc--tap .hk-vd__o:nth-child(2), .chao__buoc--fact .chao__sp > :nth-child(2) { animation-delay: 70ms; }
+  .chao__buoc--tap .hk-vd__o:nth-child(3), .chao__buoc--fact .chao__sp > :nth-child(3) { animation-delay: 140ms; }
+  .chao__buoc--tap .hk-vd__o:nth-child(4), .chao__buoc--fact .chao__sp > :nth-child(4) { animation-delay: 210ms; }
+  .chao__buoc--fact .chao__sp > :nth-child(n+5) { animation-delay: 280ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chao__nen, .chao__khung, .chao__cham li { transition: none; }
+  .chao__xoay { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .chao { padding: 0; align-items: stretch; }
+  .chao__khung { max-height: none; height: 100%; border-radius: 0; }
+  .chao__tren { padding: 10px 12px 4px; }
+  .chao__sau { font-size: 13px; padding: 0 10px; }
+  .chao__noi { padding: 4px 16px 16px; }
+  .chao__duoi { padding: 10px 16px max(12px, env(safe-area-inset-bottom)); }
+  .chao__duoi .btn--lg { min-width: 0; flex: 1; }
+  .chao__kids { height: 120px; }
+  .chao__ds { grid-template-columns: minmax(0, 1fr); }
+  .chao .hk-vd__ds { grid-template-columns: minmax(0, 1fr); }
+}

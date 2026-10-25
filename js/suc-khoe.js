@@ -577,7 +577,7 @@
       <div data-hk-art></div>
     </div>`;
     datArt(`${hs.sex}|${hs.dob}|${lan.d}|${lan.h}`, heroArt({ cm: Math.round(lan.h), intro: kid === 'girl' || kid === 'boy', kid, trai: hs.sex === 1, teen: thang >= 144 }),
-      `${ic(kid === 'boy' ? 'boy' : kid === 'girl' ? 'girl' : kid, 28)}<b>${ten[0].toUpperCase() + ten.slice(1)} · ${tuoiChu(hs.dob, lan.d)}</b>${hfa ? `<span class="hk-hero__ok hk-tone--${hfa.tone}">Chiều cao: ${hfa.label.toLowerCase()}</span>` : ''}`);
+      `<img class="rd-emo" src="img/rd/kids/mat-${matBe(hs.sex, hs.dob)}.webp" alt="" width="28" height="28" decoding="async"><b>${ten[0].toUpperCase() + ten.slice(1)} · ${tuoiChu(hs.dob, lan.d)}</b>${hfa ? `<span class="hk-hero__ok hk-tone--${hfa.tone}">Chiều cao: ${hfa.label.toLowerCase()}</span>` : ''}`);
     ganH1();
     if (moRong && k) veKetQua(hs, k); else { kq.hidden = true; kq.innerHTML = ''; }
   }
@@ -823,18 +823,23 @@
   if (window.ResizeObserver) new ResizeObserver(() => { const el = $('#hkChart', root); if (el && Math.abs(el.clientWidth - rongBieuDo) > 24) veBieuDo(); }).observe(kq);
 
   /* ---------------- Form nhập thông tin (modal dùng chung #callbackModal) ---------------- */
+  /* Mặt bé 3D (img/rd/kids/mat-*.webp, cùng bộ với ảnh bé ở đầu trang) theo giới tính và tuổi; chưa có ngày sinh thì dùng bé 3–12 tuổi */
+  function matBe(sex, dob) {
+    const thang = /^\d{4}-\d{2}-\d{2}$/.test(dob || '') ? soNgay(dob, isoNgay(new Date())) / NGAY_MOI_THANG : 60, trai = sex === 1;
+    return thang < 12 ? 'em-be' : thang < 36 ? (trai ? 'chap-chung-trai' : 'chap-chung-gai') : thang < 144 ? (trai ? 'be-trai' : 'be-gai') : (trai ? 'teen-trai' : 'teen-gai');
+  }
   function moForm() {
     taiWho().catch(() => {});
     const daLuu = doc(), hs = daLuu || {};
     const homNay = isoNgay(new Date());
     $('#callbackContent').innerHTML = `<div class="modal__head hk-form__head"><h3>${ic('ruler', 32)}Thông tin của bé</h3><button class="modal__close" type="button" data-close-modal aria-label="Đóng">${I.close}</button></div>
       <form class="modal__body hk-form" id="hkForm" novalidate>
-        <div class="hk-form__hi"><img class="rd-doodle rd-doodle--sm" src="img/rd/doodles/khuc-xuong-vui.svg" alt="" width="48" height="48"><p>Mẹ nhập giới tính, ngày sinh, chiều cao và cân nặng của bé. Kết quả hiện ngay, theo chuẩn WHO.</p></div>
+        <div class="hk-form__hi"><img class="hk-form__mat" src="img/rd/kids/mat-me-be.webp" alt="" width="48" height="48" decoding="async"><p>Mẹ nhập giới tính, ngày sinh, chiều cao và cân nặng của bé. Kết quả hiện ngay, theo chuẩn WHO.</p></div>
         <div class="field"><label for="hkTen">Tên bé (không bắt buộc)</label><input class="input" id="hkTen" name="name" maxlength="30" autocomplete="off" value="${esc(hs.name || '')}"></div>
         <fieldset class="field hk-sex"><legend>Giới tính <span>*</span></legend>
           <div class="chips">
-            <label class="chip"><input type="radio" name="sex" value="1" ${hs.sex === 1 ? 'checked' : ''}>${ic('boy', 28)}Bé trai</label>
-            <label class="chip"><input type="radio" name="sex" value="2" ${hs.sex === 2 ? 'checked' : ''}>${ic('girl', 28)}Bé gái</label>
+            <label class="chip"><input type="radio" name="sex" value="1" ${hs.sex === 1 ? 'checked' : ''}><img class="rd-emo hk-sex__mat" src="img/rd/kids/mat-${matBe(1, hs.dob)}.webp" alt="" width="28" height="28" decoding="async">Bé trai</label>
+            <label class="chip"><input type="radio" name="sex" value="2" ${hs.sex === 2 ? 'checked' : ''}><img class="rd-emo hk-sex__mat" src="img/rd/kids/mat-${matBe(2, hs.dob)}.webp" alt="" width="28" height="28" decoding="async">Bé gái</label>
           </div>
           <small class="form-error" data-err="sex"></small>
         </fieldset>
@@ -938,7 +943,12 @@
       nut.disabled = false; nut.innerHTML = `${I.headset}Nhờ tư vấn cho bé`; loi.textContent = err.message;
     }
   });
-  document.addEventListener('input', (e) => { if (e.target.closest('#hkForm')) delete e.target.closest('#hkForm').dataset.daCanhBao; });
+  document.addEventListener('input', (e) => {
+    const f = e.target.closest('#hkForm');
+    if (!f) return;
+    delete f.dataset.daCanhBao;
+    if (e.target.name === 'dob') $$('.hk-sex__mat', f).forEach((im, i) => { im.src = `img/rd/kids/mat-${matBe(i + 1, e.target.value)}.webp`; });   // đổi mặt bé theo tuổi vừa nhập
+  });
 
   /* Link "Đo chỉ số cho bé" (index.html#do-chi-so: pill trên header, menu mobile, nút giữa thanh dưới):
      mở form như nút [data-hk-mo], rồi xoá dấu # để bấm lại lần nữa vẫn mở được */
@@ -949,6 +959,14 @@
     else window.addEventListener('load', () => { if ($('#callbackContent')) moForm(); }, { once: true });
   }
   window.addEventListener('hashchange', moTuLink);
+
+  /* Cho popup chào trang chủ (js/chao-be.js): đọc bé đã lưu, mở đúng form ở trên, và kết quả của bé đã lưu
+     tính bằng chính danhGia / goiY (không vẽ gì lên trang, không lưu gì thêm) */
+  Object.assign(window.HK_GROWTH, {
+    hoSo: doc,
+    moFormDo: moForm,
+    ketQuaBe: (hs) => taiWho().then(() => { const k = danhGia(hs, hs.log[hs.log.length - 1]), g = goiY(k); return { hs, k, chon: g.chon, lyDo: g.lyDo }; }),
+  });
 
   veThe();
   veNhuCau();

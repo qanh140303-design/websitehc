@@ -443,8 +443,11 @@
 
   /* ---------------- Theme "Lớn lên cùng bé": icon Fluent Emoji 3D (img/rd/icons, giấy phép MIT) ---------------- */
   const RD_ICON_DIR = 'img/rd/icons/';
+  /* Icon hình người dùng mặt bé / mẹ 3D của shop (img/rd/kids/mat-*.webp, cùng bộ với các bé 3D) thay cho mặt Fluent */
+  const RD_MAT = { baby: 'em-be', child: 'chap-chung-trai', boy: 'be-trai', girl: 'be-gai', pregnant: 'me-bau', 'mom-feeding': 'me-be', user: 'me-be' };
+  const rdIconSrc = (slug) => (RD_MAT[slug] ? `img/rd/kids/mat-${RD_MAT[slug]}.webp` : `${RD_ICON_DIR}${slug}.webp`);
   /* <img> icon; alt rỗng = trang trí. size = cỡ hiển thị (px). */
-  const rdIcon = (slug, size = 28, alt = '', cls = '') => `<img class="rd-emo${cls ? ' ' + cls : ''}" src="${RD_ICON_DIR}${slug}.webp" alt="${esc(alt)}" width="${size}" height="${size}" loading="lazy" decoding="async">`;
+  const rdIcon = (slug, size = 28, alt = '', cls = '') => `<img class="rd-emo${cls ? ' ' + cls : ''}" src="${rdIconSrc(slug)}" alt="${esc(alt)}" width="${size}" height="${size}" loading="lazy" decoding="async">`;
   /* Emoji trong dữ liệu Quản trị (danh mục, độ tuổi) → icon 3D khi hiển thị; emoji lạ giữ nguyên */
   const RD_EMOJI = { '🧃': 'juice', '🥛': 'milk', '🌿': 'herb', '💊': 'pill', '🍯': 'honey', '🍙': 'rice-ball', '🍎': 'apple', '🍱': 'rice', '💆‍♀️': 'lotion', '💆': 'lotion', '🍼': 'bottle', '🥣': 'bowl', '🧸': 'teddy', '📏': 'ruler', '🎨': 'puzzle', '🎒': 'backpack', '⚽': 'basketball' };
   /* Sticker 3D kawaii của từng danh mục (img/rd/stickers, tạo bằng Higgsfield): emoji danh mục → sticker riêng */
@@ -571,6 +574,7 @@
         <a class="mmenu__link" href="gioi-thieu.html">${rdIcon('heart-pink', 24)} Giới thiệu Hương Chất Kids</a>
         ${NAV.map(navMobile).join('')}
         <a class="mmenu__link" href="diem-danh.html">${rdIcon('gift', 24)} Điểm danh nhận quà</a>
+        <a class="mmenu__link" href="tap-cung-be.html">${rdIcon('muscle', 24)} Vận động cùng bé mỗi ngày</a>
         <a class="mmenu__link" href="vi-voucher.html">${rdIcon('ticket', 24)} Ví voucher của mẹ</a>
         <a class="mmenu__link" href="account.html"><img class="rd-emo bn-mom" src="img/rd/kids/mat-me-be.webp" alt="" width="24" height="24" loading="lazy" decoding="async"> Tài khoản và đơn hàng</a>
         <a class="mmenu__link" href="policy.html">${rdIcon('shield', 24)} Hỗ trợ và chính sách</a>
@@ -2089,6 +2093,19 @@
       return { ok: true, giam: Math.min(v.giaTri, tien), tienApDung: tien };
     },
   };
+  /* ---- Vận động cùng bé (tap-cung-be.html) – máy chủ tự tính ngày, chuỗi, điểm, voucher; web chỉ hiển thị ---- */
+  const VD = {
+    _cfg: null,
+    cauHinh() {
+      if (this._cfg) return this._cfg;
+      const c = store.get('mc_vd_cfg', null);
+      if (c && Date.now() - c.luc < 10 * 60e3) return (this._cfg = Promise.resolve(c));
+      return (this._cfg = loyaltyApi('vdCauHinh').then((r) => { if (r && r.ok) { const v = { ...r.cauHinh, luc: Date.now() }; store.set('mc_vd_cfg', v); return v; } return c || { bat: false }; }).catch(() => c || { bat: false }));
+    },
+    tongQuan() { return goiNhanh('vdTongQuan'); },
+    tongQuanCu() { return docNhanh('vdTongQuan'); },
+    hoanThanh(o) { const s = Session.get(); return s ? loyaltyApi('vdHoanThanh', { token: s.token, ...o }, 30000) : Promise.resolve(null); },
+  };
   /* Che email: hung@gmail.com → h***@gmail.com, nguyenabc@gmail.com → n******c@gmail.com */
   const anEmail = (e) => { const [u, d] = String(e || "").split("@"); if (!d) return ""; return u.length <= 4 ? u[0] + "***@" + d : u[0] + "*".repeat(Math.max(3, u.length - 2)) + u.slice(-1) + "@" + d; };
   const taoMaDon = () => 'HCK' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + String(Math.floor(Math.random() * 9000) + 1000);
@@ -2142,7 +2159,7 @@
   };
 
   window.MC = { $, $$, fmt, pct, listPrice, param, esc, byId, brandOf, ageLabel, ageRange, productThumb, shortName, addrShow, hoursNote, MULTI_RATE, shopeeSale, shopeeBtn, vietqrPayload, payBox, payQrSvg, openPayQR, transferInfo, stripVN, store, phoneOk, I, starRow, productImage, productCard, Cart, Customer, Wish, submitOrder, shipFee, applyCoupon, maShipTuDong, deliveryEstimate, toast, openQuickBuy, openCallback, openCart, renderDrawer, countdown, orderSuccessHTML, syncStock, applyStock, rankDefault, isForMom, autoScrollRow,
-    tierOf, tierByKey, tierNext, tierDiscount, tierBadge, tiers, phoneKey, maHetHan, ketHop, maChoQua, ViMa, GT, DD, openModal, closeModal, sinhNhat, taoMaDon, anEmail, AFF, voucherTicket, maCongKhai, maTotNhat, chipMaDaLuu, daMuaTruoc, vcIcon, maskPhone, addrParse, addrStore, addrFull, loyaltyApi, goiNhanh, taiKhoanNap, Session, saveSession, refreshProfile, couponsFor, openOtp,
+    tierOf, tierByKey, tierNext, tierDiscount, tierBadge, tiers, phoneKey, maHetHan, ketHop, maChoQua, ViMa, GT, DD, VD, openModal, closeModal, sinhNhat, taoMaDon, anEmail, AFF, voucherTicket, maCongKhai, maTotNhat, chipMaDaLuu, daMuaTruoc, vcIcon, maskPhone, addrParse, addrStore, addrFull, loyaltyApi, goiNhanh, taiKhoanNap, Session, saveSession, refreshProfile, couponsFor, openOtp,
     spUrl, baiUrl, hetHang, chayHang, timSP, boDau, giftFor, giftNote, giftBox, laComboGiam, suKienDangChay, suKienHien, gioVangChay, gioVangCua, gioVangNhan, dangKhuyenMai, ctDangChay, ctMoTa, laNuocLotte, laVip, hangCho, traHang, HangSdt, openLogin, openDoiMk, moiDoiMk, tinhTuDiaChi, ghnQuote, ghnInfo, shipText, shipFrom,
-    rdIcon, rdEmoji, rdAgeIcon, rdSticker, RD_EMOJI, RD_STICKER, RD_AGE_ICON, RD_NEED_ICON, RD_TONE };
+    rdIcon, rdIconSrc, rdEmoji, rdAgeIcon, rdSticker, RD_EMOJI, RD_STICKER, RD_AGE_ICON, RD_NEED_ICON, RD_TONE, RD_MAT };
 })();

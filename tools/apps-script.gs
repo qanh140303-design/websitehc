@@ -1052,7 +1052,8 @@ var H_VC = ['Mã voucher', 'Điện thoại', 'Nguồn', 'Kỳ', 'Tên', 'Kiểu
 var SHEET_VCLS = 'Voucher - Lịch sử';
 var H_VCLS = ['Thời gian', 'Mã voucher', 'Điện thoại', 'Sự kiện', 'Mã đơn', 'Người làm', 'Ghi chú'];
 var VC = { CO: 'AVAILABLE', GIU: 'RESERVED', DUNG: 'USED', HET: 'EXPIRED', THU: 'REVOKED' };
-var NGUON_VC = { DOUBLE_DATE: 'Ngày đôi', STREAK_10: 'Chuỗi 10 ngày', STREAK_20: 'Chuỗi 20 ngày', STREAK_30: 'Chuỗi 30 ngày' };
+var NGUON_VC = { DOUBLE_DATE: 'Ngày đôi', STREAK_10: 'Chuỗi 10 ngày', STREAK_20: 'Chuỗi 20 ngày', STREAK_30: 'Chuỗi 30 ngày',
+  VD_7: 'Vận động 7 ngày', VD_14: 'Vận động 14 ngày', VD_21: 'Vận động 21 ngày' };
 var DD_MAC_DINH = {
   bat: true,                 // bật toàn bộ chương trình
   tuDong: true,              // tự điểm danh khi đăng nhập thành công
@@ -1089,6 +1090,7 @@ function congNgay_(ngay, n) { var d = new Date(ngay + 'T12:00:00+07:00'); return
 function laNgayDoi_(ngay) { return ngay.slice(5, 7) === ngay.slice(8, 10); }
 function trongChuongTrinh_(cfg, ngay) { return !!cfg.bat && !(cfg.batDau && ngay < cfg.batDau) && !(cfg.ketThuc && ngay > cfg.ketThuc); }
 function giaTriNguon_(cfg, nguon) {
+  if (cfg.giaTriNguon) return soNguyen(cfg.giaTriNguon[nguon]);   // bảng giá trị riêng (Vận động cùng bé)
   if (nguon === 'DOUBLE_DATE') return cfg.ngayDoi && cfg.ngayDoi.bat ? soNguyen(cfg.ngayDoi.giaTri) : 0;
   var m = (cfg.moc || {})['m' + nguon.replace('STREAK_', '')]; return m && m.bat ? soNguyen(m.giaTri) : 0;
 }
@@ -1293,6 +1295,81 @@ function apiDdSauDangNhap(p) {
   var ph = phienKhach(p.token); if (!ph) return { ok: false, loi: 'token', msg: 'Phiên đã hết hạn' };
   if (!demGioiHan('ddsau_' + ph.sdt, 20, 600)) return { ok: false, code: 'RATE_LIMIT' };
   return ddSauDangNhap_(ph.sdt) || { ok: false };
+}
+
+/* ===================== VẬN ĐỘNG CÙNG BÉ (tap-cung-be.html) =====================
+   Bố mẹ tập hết "Bài hôm nay" cùng bé → web gửi vdHoanThanh → máy chủ cộng điểm đúng 1 lần / ngày (giờ Việt Nam).
+   Chuỗi ngày liên tiếp trong tháng đủ 7 / 14 / 21 ngày → voucher VD_7 / VD_14 / VD_21 (mỗi mốc 1 lần / tháng, sang tháng tính lại).
+   Chống trùng giống điểm danh: chạy trong voiKhoa + khoá VD:sdt:ngày (sheet Vận động), EXERCISE:sdt:ngày (sổ điểm), VD_<mốc>:sdt:<tháng> (sổ voucher).
+   Hạn dùng, đơn tối thiểu, phạm vi của voucher theo cấu hình Điểm danh. Nội dung bài tập nằm ở js/data.js (BAI_TAP), máy chủ không cần biết.
+   Đổi số điểm / mốc: Script Property VD_CAU_HINH (JSON, gộp đè lên VD_MAC_DINH). */
+var SHEET_VDONG = 'Vận động';
+var H_VDONG = ['Ngày', 'Điện thoại', 'Thời gian', 'Nhóm tuổi', 'Số bài', 'Giây tập', 'Chuỗi', 'Điểm', 'Mã GD điểm', 'Phần thưởng', 'Khoá'];
+var VD_MAC_DINH = {
+  bat: true,
+  diemNgay: 500,             // điểm mỗi ngày tập xong bài hôm nay
+  giayToiThieu: 90,          // tập ít hơn số giây này thì không cộng điểm (chặn bấm bỏ qua hết bài)
+  moc: { 7: 10000, 14: 20000, 21: 30000 }   // chuỗi ngày trong tháng → giá trị voucher (0 = tắt mốc đó)
+};
+function sheetVDong_() { return sheetPhu(SHEET_VDONG, H_VDONG); }
+function vdCauHinh() {
+  var c = {}; try { c = JSON.parse(PropertiesService.getScriptProperties().getProperty('VD_CAU_HINH') || '{}'); } catch (e) { c = {}; }
+  return gopSau_(VD_MAC_DINH, c);
+}
+function mocVD_(cfg) { return Object.keys(cfg.moc || {}).map(Number).filter(function (m) { return m > 0 && soNguyen(cfg.moc[m]) > 0; }).sort(function (a, b) { return a - b; }); }
+/* Cấu hình dùng cho capVoucher_: giá trị theo mốc vận động, phần còn lại theo điểm danh */
+function vcCfgVD_(cfg) {
+  var dd = ddCauHinh(), gt = {}; mocVD_(cfg).forEach(function (m) { gt['VD_' + m] = soNguyen(cfg.moc[m]); });
+  return { giaTriNguon: gt, hanNgay: dd.hanNgay, donToiThieu: dd.donToiThieu, phamVi: dd.phamVi };
+}
+function docVDong_() { var s = sheetVDong_(); var n = s.getLastRow(); return n < 2 ? [] : s.getRange(2, 1, n - 1, H_VDONG.length).getValues(); }
+function vdCongKhai_(cfg) { return { bat: !!cfg.bat, diemNgay: soNguyen(cfg.diemNgay), giayToiThieu: soNguyen(cfg.giayToiThieu), moc: mocVD_(cfg).map(function (m) { return { moc: m, giaTri: soNguyen(cfg.moc[m]) }; }) }; }
+
+/* Ghi nhận 1 buổi tập HÔM NAY của khách (ngày do máy chủ tự xác định) */
+function vanDong_(sdt, nhom, soBai, giay) {
+  var cfg = vdCauHinh(), ngay = ngayDD_();
+  if (!sdtHopLe(sdt)) return { ok: false, code: 'BAD_PHONE', msg: 'Số điện thoại chưa đúng' };
+  if (!cfg.bat) return { ok: false, code: 'DISABLED', msg: 'Chương trình vận động đang tạm dừng' };
+  if (giay < soNguyen(cfg.giayToiThieu)) return { ok: false, code: 'TOO_SHORT', msg: 'Bé chưa tập đủ bài hôm nay, mẹ cùng bé tập hết bài rồi nhận điểm nhé' };
+  if (khachBiKhoa(sdt)) return { ok: false, code: 'BLOCKED', msg: 'Tài khoản đang bị khoá' };
+  return voiKhoa(function () {
+    var thang = ngay.slice(0, 7), daVD = ngayDaDD_(docVDong_(), sdt, thang), moi = !daVD[ngay], chuoi;
+    if (moi) {
+      chuoi = chuoiDen_(daVD, congNgay_(ngay, -1)) + 1;
+      sheetVDong_().appendRow(["'" + ngay, "'" + sdt, new Date(Date.now()), nhom, soBai, giay, chuoi, 0, '', '', 'VD:' + sdt + ':' + ngay]);
+      daVD[ngay] = true;
+    } else chuoi = chuoiDen_(daVD, ngay);
+    /* Phần thưởng luôn chạy theo khoá → lần đầu cấp, gọi lại chỉ cấp bù phần còn thiếu */
+    var diem = Math.max(0, soNguyen(cfg.diemNgay)), gd = { ok: true };
+    if (diem) gd = ghiDiem(sdt, 'EARN', diem, 'EXERCISE', "'" + ngay, '🤸 Vận động cùng bé ngày ' + ngay.split('-').reverse().join('/'), 'hệ thống', 'EXERCISE:' + sdt + ':' + ngay);
+    var vcfg = vcCfgVD_(cfg), vcs = docVC_(), nhan = [];
+    mocVD_(cfg).forEach(function (m) { if (chuoi >= m) { var r = capVoucher_(sdt, 'VD_' + m, thang, vcfg, vcs); if (r.ma && !r.trung) nhan.push(r); } });
+    if (moi) {
+      var s = sheetVDong_(), n = s.getLastRow();
+      s.getRange(n, 8, 1, 3).setValues([[gd.ok && !gd.trung && diem ? diem : 0, gd.ma || '', nhan.map(function (x) { return x.nguon + ' ' + x.ma; }).join(', ')]]);
+      ghiNhatKy('Vận động', sdt, 'Tập cùng bé ' + ngay + ' (' + nhom + ', ' + soBai + ' bài, ' + giay + ' giây), chuỗi ' + chuoi + ' ngày, +' + diem + ' điểm' + (nhan.length ? ', voucher: ' + nhan.map(function (x) { return x.nguon; }).join(', ') : ''));
+    }
+    return { ok: true, moi: moi, ngay: ngay, chuoi: chuoi, diem: moi && gd.ok && !gd.trung ? diem : 0, voucher: nhan, soDu: viDiem(sdt, docSoDiem(), []).soDu };
+  });
+}
+function apiVdCauHinh() { return { ok: true, cauHinh: vdCongKhai_(vdCauHinh()), homNay: ngayDD_() }; }
+/* Tổng quan cho trang: hôm nay đã tập chưa, chuỗi ngày, các ngày đã tập trong 35 ngày gần nhất, mốc voucher tháng này */
+function apiVdTongQuan(p) {
+  var ph = phienKhach(p.token); if (!ph) return { ok: false, loi: 'token', msg: 'Phiên đã hết hạn, mẹ đăng nhập lại nhé' };
+  var cfg = vdCauHinh(), homNay = ngayDD_(), thang = homNay.slice(0, 7), tu = congNgay_(homNay, -34);
+  var dong = docVDong_(), daVD = ngayDaDD_(dong, ph.sdt, thang), gan = {};
+  dong.forEach(function (r) { var ng = ngayO_(r[0]); if (chuanSdt(r[1]) === ph.sdt && ng >= tu && ng <= homNay) gan[ng] = true; });
+  var chuoi = daVD[homNay] ? chuoiDen_(daVD, homNay) : chuoiDen_(daVD, congNgay_(homNay, -1));
+  var daNhan = {}; docVC_().forEach(function (r) { if (chuanSdt(r[1]) === ph.sdt && String(r[3]).slice(0, 7) === thang && /^VD_/.test(String(r[2]))) daNhan[String(r[2])] = true; });
+  return { ok: true, homNay: homNay, daTapHomNay: !!daVD[homNay], chuoi: chuoi, soNgayThang: Object.keys(daVD).length, ngayTap: Object.keys(gan).sort(),
+    moc: mocVD_(cfg).map(function (m) { return { moc: m, giaTri: soNguyen(cfg.moc[m]), daNhan: !!daNhan['VD_' + m], conLai: Math.max(0, m - chuoi) }; }),
+    cauHinh: vdCongKhai_(cfg) };
+}
+function apiVdHoanThanh(p) {
+  var ph = phienKhach(p.token); if (!ph) return { ok: false, loi: 'token', msg: 'Phiên đã hết hạn, mẹ đăng nhập lại nhé' };
+  if (!demGioiHan('vd_' + ph.sdt, 20, 600)) return { ok: false, code: 'RATE_LIMIT', msg: 'Mẹ thao tác nhanh quá, thử lại sau ít phút nhé' };
+  var nhom = String(p.nhom || '').replace(/[^\w-]/g, '').slice(0, 10);
+  return vanDong_(ph.sdt, nhom, Math.max(0, Math.min(20, soNguyen(p.soBai))), Math.max(0, Math.min(7200, soNguyen(p.giay))));
 }
 /* Trang tài khoản gọi 1 lần lấy đủ: hồ sơ, điểm, giới thiệu, điểm danh, voucher, đối tác (thay 6 lần gọi riêng –
    mỗi lần ~1,5 giây chờ khởi động + mở lại bảng tính). CHỈ ĐỌC. Phần nào lỗi thì bỏ trống, web tự gọi riêng phần đó. */
@@ -2417,6 +2494,9 @@ function doGet(e) {
     if (action === 'qtSnbLuu')      return traVe(apiQtSnbLuu(p), cb);
     if (action === 'ddTongQuan')    return traVe(apiDdTongQuan(p), cb);
     if (action === 'ddDiemDanh')    return traVe(apiDdDiemDanh(p), cb);
+    if (action === 'vdCauHinh')     return traVe(apiVdCauHinh(), cb);
+    if (action === 'vdTongQuan')    return traVe(apiVdTongQuan(p), cb);
+    if (action === 'vdHoanThanh')   return traVe(apiVdHoanThanh(p), cb);
     if (action === 'vcCuaToi')      return traVe(apiVcCuaToi(p), cb);
     if (action === 'taiKhoan')      return traVe(apiTaiKhoan(p), cb);
     if (action === 'ddSauDangNhap') return traVe(apiDdSauDangNhap(p), cb);
@@ -2958,7 +3038,7 @@ function baoLenh_(data) {
 /* C2 – Giới hạn số yêu cầu mỗi 10 phút cho toàn hệ thống (Apps Script không biết IP người gọi).
    Vượt ngưỡng: tạm chặn lệnh đó + cảnh báo chủ shop. Ngưỡng rộng hơn nhiều so với lượng khách thật. */
 var GIOI_HAN_10P = { dgGui: 200, dgDs: 20000, dgTomTat: 20000, chatGui: 1500, chatDoc: 20000, chatApi: 6000, quaLe: 600, maKiemTra: 1500, taiKhoan: 600, ddSauDangNhap: 300, guiOtp: 40, xacThuc: 120, dangKy: 40, dangNhap: 150, capNhat: 100, affDangKy: 15, affDangNhap: 80, affTuKhach: 300, affBam: 1500, affSdt: 600, affGanDon: 300,
-  qtDangNhap: 40, qtDangNhap2: 40, qmkGui: 60, gtGiuCho: 200, ddDiemDanh: 600, ddTongQuan: 1500, vcCuaToi: 1500, qtVcThuHoi: 60, snLuu: 200, snbLuu: 200, leadTuVan: 120 };
+  qtDangNhap: 40, qtDangNhap2: 40, qmkGui: 60, gtGiuCho: 200, ddDiemDanh: 600, ddTongQuan: 1500, vdHoanThanh: 600, vdTongQuan: 1500, vcCuaToi: 1500, qtVcThuHoi: 60, snLuu: 200, snbLuu: 200, leadTuVan: 120 };
 function chanTanSuat_(action) {
   var t = GIOI_HAN_10P[action]; if (!t || demGioiHan('gh_' + action, t, 600)) return null;
   canhBao_('tan-suat-' + action, '⚠️ Có hơn ' + t + ' yêu cầu "' + action + '" trong 10 phút – có thể bot đang tấn công. Hệ thống đã tạm chặn lệnh này, tự mở lại sau khi lắng xuống.');

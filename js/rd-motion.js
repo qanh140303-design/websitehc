@@ -59,7 +59,8 @@
     return EMO[k] || EMO[k.split('‍')[0]] || null;
   }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function iconSrc(slug) { return ICON + slug + '.webp'; }
+  /* Icon hình người → mặt bé / mẹ 3D của shop (MC.rdIconSrc, js/app.js), còn lại icon Fluent */
+  function iconSrc(slug) { return window.MC && window.MC.rdIconSrc ? BASE + window.MC.rdIconSrc(slug) : ICON + slug + '.webp'; }
   // icon(emojiHoặcSlug, {size, alt, cls, eager}) -> '<img class="rd-emo" ...>' ; emoji lạ trả nguyên.
   function icon(e, o) {
     var s = slugOf(e);

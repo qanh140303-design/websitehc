@@ -13,7 +13,7 @@
   const $ = (s, r) => (r || d).querySelector(s);
   const $$ = (s, r) => Array.prototype.slice.call((r || d).querySelectorAll(s));
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const ICON = (slug) => 'img/rd/icons/' + slug + '.webp';
+  const ICON = (slug) => (window.MC && window.MC.rdIconSrc ? window.MC.rdIconSrc(slug) : 'img/rd/icons/' + slug + '.webp');   // icon hình người → mặt 3D của shop
   const KID = (k) => 'img/rd/kids/' + k + '.webp';
   const KID_W = { 'em-be': 303, 'chap-chung-gai': 258, 'chap-chung-trai': 235, 'be-gai': 296, 'be-trai': 212, 'teen-gai': 214, 'teen-trai': 205 };   // ảnh cao 600px
   const kidImg = (k, h, cls) => `<img class="${cls || ''}" src="${KID(k)}" alt="" width="${Math.round(KID_W[k] / 600 * h)}" height="${h}" loading="lazy" decoding="async">`;
