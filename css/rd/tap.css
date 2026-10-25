@@ -9,6 +9,7 @@
 .tcb-dau p { margin: 0 0 12px; color: var(--rd-muted); }
 .tcb-dau__be { width: auto; height: clamp(140px, 18vw, 220px); }
 .tcb-tuoi { display: flex; flex-wrap: wrap; gap: 8px; }
+.tcb-gioi { margin-top: 8px; }
 .tcb-tuoi__chip { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border-radius: var(--rd-r-pill);
   border: 1.5px solid var(--rd-line-strong); background: #fff; color: var(--rd-ink); font: 600 14px/1.2 inherit; cursor: pointer; }
 .tcb-tuoi__chip.is-on { border-color: var(--primary); background: var(--primary); color: #fff; }

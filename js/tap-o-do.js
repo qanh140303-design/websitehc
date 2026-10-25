@@ -15,7 +15,7 @@
     var ds = L.baiNgay(k.giaiDoan, L.homNay());
     if (!ds.length) return;
     var cu = kq.querySelector('.hk-tap'); if (cu) cu.remove();
-    var ten = String(hs.name || '').trim() || 'bé', link = 'tap-cung-be.html?tuoi=' + encodeURIComponent(k.giaiDoan);
+    var ten = String(hs.name || '').trim() || 'bé', link = 'tap-cung-be.html?tuoi=' + encodeURIComponent(k.giaiDoan) + '&gioi=' + (Number(hs.sex) === 1 ? 'trai' : 'gai');
     var giay = ds.reduce(function (t, b) { return t + (b.giay || 40); }, 0) + (ds.length - 1) * L.cauHinh().nghiGiay;
     var o = document.createElement('div');
     o.className = 'hk-block hk-tap';
@@ -53,7 +53,7 @@
     var ten = String(hs.name || '').trim() || 'bé', giay = ds.reduce(function (t, b) { return t + (b.giay || 40); }, 0) + (ds.length - 1) * L.cauHinh().nghiGiay;
     var a = document.createElement('a');
     a.className = 'hk-vd__o hk-tap-hero';
-    a.href = 'tap-cung-be.html?tuoi=' + encodeURIComponent(k);
+    a.href = 'tap-cung-be.html?tuoi=' + encodeURIComponent(k) + '&gioi=' + (Number(hs.sex) === 1 ? 'trai' : 'gai');
     a.style.cssText = 'grid-column:1/-1;flex:1 1 100%;order:5;color:inherit;text-decoration:none';   // nằm trong cụm nút, dòng riêng, sau các nút
     a.innerHTML = '<span class="hk-vd__ic" aria-hidden="true">' + MC.rdIcon('muscle', 32) + '</span>' +
       '<div><b>Vận động hôm nay của ' + esc(ten.toLowerCase() === 'bé' ? 'bé' : 'bé ' + ten) + '</b>' +

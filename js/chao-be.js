@@ -95,7 +95,7 @@
         <div class="hk-vd__ds">${ds.map((b) => `<div class="hk-vd__o"><span class="hk-vd__ic" aria-hidden="true">${ic(b.icon || 'star', 32)}</span>
           <div><b>${esc(b.ten)}</b><p>${LOAI[b.loai] || ''} · ${b.giay} giây</p></div></div>`).join('')}</div>
         ${tk}
-        <a class="btn btn--primary btn--block chao__tap" href="tap-cung-be.html?tuoi=${encodeURIComponent(k.giaiDoan)}">${ic('muscle', 24)}Tập cùng ${esc(ten)} ngay</a>`;
+        <a class="btn btn--primary btn--block chao__tap" href="tap-cung-be.html?tuoi=${encodeURIComponent(k.giaiDoan)}&amp;gioi=${Number(hs.sex) === 1 ? 'trai' : 'gai'}">${ic('muscle', 24)}Tập cùng ${esc(ten)} ngay</a>`;
     }
     function veFact() {
       if (!kq) return choKqHtml();

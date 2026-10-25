@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const goc = $('#tcb'); if (!goc) return;
   const DS = window.BAI_TAP || [], L = window.TCB_LICH, CFG = L.cauHinh();
   const AGES = window.AGES || [], HINH = window.TCB_HINH;
-  const K_TUOI = 'mc_vd_tuoi', K_CHO = 'mc_vd_cho', K_TIENG = 'mc_vd_tieng';
+  const K_TUOI = 'mc_vd_tuoi', K_CHO = 'mc_vd_cho', K_TIENG = 'mc_vd_tieng', K_GIOI = 'mc_vd_gioi';
   const { homNay, congNgay, thuTrongTuan, theoTuoi, baiNgay, dangTuoi } = L;   // lịch tuần: js/tap-lich.js
   const TEN_THU = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
   const LOAI = { khoi: 'Khởi động', chinh: 'Bài chính', tha: 'Thả lỏng' };
@@ -34,7 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return m >= 0 && m < 216 ? giaiDoan(m) : '';
   }
   const tenBe = () => String((Session.kh() || {}).tenBe || (hoSoDo() || {}).name || '').trim();
-  const laGai = () => Number((hoSoDo() || {}).sex) !== 1;   // giống phần Đo chỉ số: chưa có hồ sơ thì dùng bé gái
+  /* Bé trai / bé gái: link từ kết quả đo, popup (?gioi=, kể cả tra cứu chưa lưu) → bé đã lưu → mẹ chọn lần trước → bé gái */
+  const qGioi = new URLSearchParams(location.search).get('gioi');
+  const GIOI_OK = (g) => g === 'trai' || g === 'gai';
+  if (GIOI_OK(qGioi)) store.set(K_GIOI, qGioi);
+  let gioi = GIOI_OK(qGioi) ? qGioi : hoSoDo() ? (Number(hoSoDo().sex) === 1 ? 'trai' : 'gai') : (GIOI_OK(store.get(K_GIOI, '')) ? store.get(K_GIOI, '') : 'gai');
+  const laGai = () => gioi !== 'trai';
   const qTuoi = new URLSearchParams(location.search).get('tuoi');   // từ kết quả Đo chỉ số (js/tap-o-do.js)
   if (qTuoi && AGES.some((a) => a.key === qTuoi)) store.set(K_TUOI, qTuoi);
   let nhom = store.get(K_TUOI, '') || tuoiTuDong();
@@ -72,7 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- Màn chính ---------- */
   function chipTuoi() {
-    return `<div class="tcb-tuoi" role="group" aria-label="Chọn độ tuổi của bé">${AGES.map((a) => `<button type="button" class="tcb-tuoi__chip${a.key === nhom ? ' is-on' : ''}" data-tcb-tuoi="${a.key}" aria-pressed="${a.key === nhom}">${rdAgeIcon(a.key, 22) || a.emoji}<span>${esc(a.label)}</span></button>`).join('')}</div>`;
+    const emBe = nhom === '0-6m' || nhom === '6-12m';   // em bé dùng chung một hình, không cần chọn
+    return `<div class="tcb-tuoi" role="group" aria-label="Chọn độ tuổi của bé">${AGES.map((a) => `<button type="button" class="tcb-tuoi__chip${a.key === nhom ? ' is-on' : ''}" data-tcb-tuoi="${a.key}" aria-pressed="${a.key === nhom}">${rdAgeIcon(a.key, 22) || a.emoji}<span>${esc(a.label)}</span></button>`).join('')}</div>
+      ${emBe ? '' : `<div class="tcb-tuoi tcb-gioi" role="group" aria-label="Bé trai hay bé gái">${[['trai', 'boy', 'Bé trai'], ['gai', 'girl', 'Bé gái']].map(([g, ic, ten]) => `<button type="button" class="tcb-tuoi__chip${gioi === g ? ' is-on' : ''}" data-tcb-gioi="${g}" aria-pressed="${gioi === g}">${rdIcon(ic, 22)}<span>${ten}</span></button>`).join('')}</div>`}`;
   }
   function tuanNay() {
     const da = new Set((tq && tq.ngayTap) || []), hn = homNay(), out = [];
@@ -164,6 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const XEM_TAT_CA = new URLSearchParams(location.search).get('xem') === 'dong-tac';
 
   goc.addEventListener('click', (e) => {
+    const gb = e.target.closest('[data-tcb-gioi]');
+    if (gb) { gioi = gb.dataset.tcbGioi; store.set(K_GIOI, gioi); (XEM_TAT_CA ? veTatCa : ve)(); return; }
     const t = e.target.closest('[data-tcb-tuoi]');
     if (t) { nhom = t.dataset.tcbTuoi; store.set(K_TUOI, nhom); (XEM_TAT_CA ? veTatCa : ve)(); return; }
     if (e.target.closest('[data-tcb-login]')) { openLogin().then((s) => { if (s) { guiCho(); taiTongQuan(); } }); return; }
